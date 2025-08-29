@@ -1,5 +1,8 @@
 // src/services/clienteService.js
 const ClienteModel = require("../models/clienteModel")
+const VehiculoService = require("./vehiculoService")
+const CitaService = require("./citaService")
+const VentaService = require("./ventaService")
 
 const ClienteService = {
   listar: () => ClienteModel.findAll(),
@@ -59,6 +62,23 @@ const ClienteService = {
     const nuevoEstado = cliente.estado === "Activo" ? "Inactivo" : "Activo"
     await ClienteModel.cambiarEstado(id, nuevoEstado)
     return nuevoEstado
+  },
+
+  // Métodos para rutas prioritarias
+  async registrarVehiculo(data) {
+    return await VehiculoService.crear(data)
+  },
+
+  async obtenerMisCitas(clienteId) {
+    return await CitaService.obtenerPorCliente(clienteId)
+  },
+
+  async obtenerMisVentas(clienteId) {
+    return await VentaService.obtenerPorCliente(clienteId)
+  },
+
+  async actualizarPerfil(clienteId, data) {
+    return await this.actualizar(clienteId, data)
   },
 }
 

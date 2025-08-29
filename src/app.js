@@ -1,6 +1,10 @@
 const express = require("express")
 const cors = require("cors")
+const helmet = require("helmet")
+const rateLimit = require("express-rate-limit")
+const errorHandler = require("./middlewares/errorHandler")
 
+// Importar rutas
 const authRoutes = require("./routes/authRoutes")
 const usuarioRoutes = require("./routes/usuarioRoutes")
 const rolRoutes = require("./routes/rolRoutes")
@@ -22,11 +26,41 @@ const horarioRoutes = require("./routes/horarioRoutes")
 const mecanicoRoutes = require("./routes/mecanicoRoutes")
 const ventaRoutes = require("./routes/ventaRoutes")
 const citaRoutes = require("./routes/citaRoutes")
+const prioritariosRoutes = require("./routes/prioritariosRoutes")
 
 const app = express()
 
-app.use(cors())
-app.use(express.json())
+// Configuración de seguridad
+app.use(helmet())
+
+// Configuración de CORS
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+  credentials: true
+}))
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // máximo 100 requests por ventana
+  message: {
+    error: 'Demasiadas solicitudes desde esta IP, intenta de nuevo en 15 minutos'
+  }
+})
+app.use('/api/', limiter)
+
+// Rate limiting más estricto para autenticación
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // máximo 5 intentos de login
+  message: {
+    error: 'Demasiados intentos de login, intenta de nuevo en 15 minutos'
+  }
+})
+app.use('/api/auth/', authLimiter)
+
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 app.use("/api/auth", authRoutes)
 app.use("/api/usuarios", usuarioRoutes)
@@ -49,6 +83,10 @@ app.use("/api/horarios", horarioRoutes)
 app.use("/api/mecanicos", mecanicoRoutes)
 app.use("/api/ventas", ventaRoutes)
 app.use("/api/citas", citaRoutes)
+app.use("/api/prioritarios", prioritariosRoutes)
+
+// Middleware de manejo de errores (debe ir al final)
+app.use(errorHandler)
 
 app.get("/", (req, res) => {
   res.json({

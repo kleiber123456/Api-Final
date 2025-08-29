@@ -2,7 +2,7 @@
 const bcrypt = require("bcryptjs")
 const UsuarioModel = require("../models/usuarioModel")
 const db = require("../config/db")
-const transporter = require("../config/nodemailer")
+const EmailService = require("./emailService")
 
 const UsuarioService = {
   listar: () => UsuarioModel.findAll(),
@@ -74,21 +74,13 @@ const UsuarioService = {
         )
       }
 
-      // Enviar correo de bienvenida
+      // Enviar correo de bienvenida usando EmailService
       if (data.correo) {
         try {
-          await transporter.sendMail({
-            to: data.correo,
-            subject: `¡Bienvenido a la comunidad MotOrtega, ${data.nombre}! 🚀`,
-            html: `
-              <div style="background-color: #f9fafc; padding: 40px 0; font-family: 'Segoe UI', sans-serif;">
-                <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">
-                  <h1 style="color: #333333;">¡Hola, ${data.nombre}!</h1>
-                  <p style="color: #666666;">Gracias por unirte a nuestra comunidad en MotOrtega. Estamos emocionados de tenerte aquí.</p>
-                  <p style="color: #666666;">Tu cuenta ha sido creada exitosamente.</p>
-                </div>
-              </div>
-            `,
+          await EmailService.sendWelcomeEmail({
+            nombre: data.nombre,
+            apellido: data.apellido,
+            correo: data.correo
           })
         } catch (emailError) {
           console.log("Error enviando correo:", emailError.message)

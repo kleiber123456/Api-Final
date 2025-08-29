@@ -1,0 +1,1283 @@
+{
+  "info": {
+    "name": "MotOrtega API - Colección Completa",
+    "description": "Colección automatizada completa para la API del Taller MotOrtega v4.0.0 con todos los endpoints, variables de entorno y scripts de prueba automatizados.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": {
+      "major": 4,
+      "minor": 0,
+      "patch": 0
+    }
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cliente_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "vehiculo_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "cita_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "venta_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "servicio_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "repuesto_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "mecanico_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Script global para agregar token automáticamente",
+          "if (pm.collectionVariables.get('token')) {",
+          "    pm.request.headers.add({",
+          "        key: 'Authorization',",
+          "        value: 'Bearer ' + pm.collectionVariables.get('token')",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Autenticación",
+      "description": "Endpoints para autenticación y recuperación de contraseña",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    if (response.token) {",
+                  "        pm.collectionVariables.set('token', response.token);",
+                  "        pm.collectionVariables.set('user_id', response.usuario.id);",
+                  "        console.log('✅ Token guardado automáticamente');",
+                  "        console.log('👤 Usuario:', response.usuario.nombre);",
+                  "        console.log('🎭 Rol:', response.usuario.rol.nombre);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@motortega.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "🔑 **Campos requeridos:**\n- email: Correo electrónico del usuario\n- password: Contraseña del usuario\n\n**Usuarios de prueba:**\n- Admin: admin@motortega.com / admin123\n- Mecánico: mecanico@motortega.com / mecanico123\n- Cliente: cliente@motortega.com / cliente123"
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Carlos\",\n  \"apellido\": \"Pérez González\",\n  \"email\": \"juan.perez@email.com\",\n  \"password\": \"password123\",\n  \"telefono\": \"3001234567\",\n  \"tipo_documento\": \"CC\",\n  \"documento\": \"1234567890\",\n  \"direccion\": \"Calle 123 #45-67, Bogotá\",\n  \"rol_id\": 4\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "📝 **Campos requeridos:**\n- nombre: Nombre del usuario\n- apellido: Apellido del usuario\n- email: Correo electrónico único\n- password: Contraseña (mínimo 6 caracteres)\n- telefono: Número de teléfono\n- tipo_documento: CC, CE, TI, etc.\n- documento: Número de documento único\n- direccion: Dirección completa\n- rol_id: 1=Admin, 2=Gerente, 3=Mecánico, 4=Cliente"
+          }
+        },
+        {
+          "name": "Solicitar Código Recuperación",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@test.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/solicitar-codigo",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "solicitar-codigo"]
+            },
+            "description": "📧 **Campo requerido:**\n- email: Correo del usuario registrado"
+          }
+        },
+        {
+          "name": "Verificar Código",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@test.com\",\n  \"codigo\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/verificar-codigo",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "verificar-codigo"]
+            },
+            "description": "🔢 **Campos requeridos:**\n- email: Correo del usuario\n- codigo: Código de 6 dígitos recibido por email"
+          }
+        },
+        {
+          "name": "Nueva Contraseña",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@test.com\",\n  \"codigo\": \"123456\",\n  \"nuevaPassword\": \"nuevaPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/nueva-password",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "nueva-password"]
+            },
+            "description": "🔐 **Campos requeridos:**\n- email: Correo del usuario\n- codigo: Código verificado\n- nuevaPassword: Nueva contraseña (mínimo 6 caracteres)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Clientes",
+      "description": "Gestión de clientes del taller",
+      "item": [
+        {
+          "name": "Listar Clientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar clientes exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    if (response.length > 0) {",
+                  "        pm.collectionVariables.set('cliente_id', response[0].id);",
+                  "        console.log('✅ Cliente ID guardado:', response[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clientes",
+              "host": ["{{base_url}}"],
+              "path": ["clientes"]
+            },
+            "description": "📋 Lista todos los clientes registrados"
+          }
+        },
+        {
+          "name": "Obtener Cliente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clientes/{{cliente_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", "{{cliente_id}}"]
+            },
+            "description": "👤 Obtiene un cliente específico por ID"
+          }
+        },
+        {
+          "name": "Crear Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cliente creado exitosamente', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    if (response.id) {",
+                  "        pm.collectionVariables.set('cliente_id', response.id);",
+                  "        console.log('✅ Nuevo cliente ID:', response.id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"María Elena\",\n  \"apellido\": \"Rodríguez Castro\",\n  \"tipo_documento\": \"CC\",\n  \"documento\": \"52123456789\",\n  \"correo\": \"maria.rodriguez@email.com\",\n  \"telefono\": \"3109876543\",\n  \"direccion\": \"Carrera 15 #32-45, Apartamento 301, Medellín\",\n  \"estado\": \"Activo\",\n  \"password\": \"cliente123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clientes",
+              "host": ["{{base_url}}"],
+              "path": ["clientes"]
+            },
+            "description": "➕ **Campos requeridos:**\n- nombre: Nombre del cliente\n- apellido: Apellido del cliente\n- tipo_documento: CC, CE, TI, etc.\n- documento: Número único de documento\n- correo: Email único del cliente\n- telefono: Número de contacto\n- direccion: Dirección completa\n- estado: Activo/Inactivo (opcional, por defecto Activo)\n- password: Contraseña para acceso (opcional, por defecto 123456)"
+          }
+        },
+        {
+          "name": "Actualizar Cliente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"María Elena\",\n  \"apellido\": \"Rodríguez Vásquez\",\n  \"tipo_documento\": \"CC\",\n  \"documento\": \"52123456789\",\n  \"correo\": \"maria.rodriguez.nueva@email.com\",\n  \"telefono\": \"3109876543\",\n  \"direccion\": \"Carrera 15 #32-45, Apartamento 301, Medellín, Antioquia\",\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clientes/{{cliente_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", "{{cliente_id}}"]
+            },
+            "description": "✏️ **Campos actualizables:**\n- Todos los campos del cliente excepto el ID\n- El documento y correo deben ser únicos"
+          }
+        },
+        {
+          "name": "Cambiar Estado Cliente",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clientes/{{cliente_id}}/estado",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", "{{cliente_id}}", "estado"]
+            },
+            "description": "🔄 Alterna el estado del cliente entre Activo/Inactivo"
+          }
+        },
+        {
+          "name": "Eliminar Cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/clientes/{{cliente_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["clientes", "{{cliente_id}}"]
+            },
+            "description": "🗑️ Elimina un cliente y su usuario asociado"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚗 Vehículos",
+      "description": "Gestión de vehículos de clientes",
+      "item": [
+        {
+          "name": "Listar Vehículos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar vehículos exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    if (response.length > 0) {",
+                  "        pm.collectionVariables.set('vehiculo_id', response[0].id);",
+                  "        console.log('✅ Vehículo ID guardado:', response[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/vehiculos",
+              "host": ["{{base_url}}"],
+              "path": ["vehiculos"]
+            },
+            "description": "🚗 Lista todos los vehículos con información de marca, referencia y cliente"
+          }
+        },
+        {
+          "name": "Obtener Vehículo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/vehiculos/{{vehiculo_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["vehiculos", "{{vehiculo_id}}"]
+            },
+            "description": "🔍 Obtiene un vehículo específico con toda su información"
+          }
+        },
+        {
+          "name": "Crear Vehículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Vehículo creado exitosamente', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    if (response.id) {",
+                  "        pm.collectionVariables.set('vehiculo_id', response.id);",
+                  "        console.log('✅ Nuevo vehículo ID:', response.id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"ABC123\",\n  \"color\": \"Rojo\",\n  \"tipo_vehiculo\": \"Automóvil\",\n  \"referencia_id\": 1,\n  \"cliente_id\": {{cliente_id}},\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/vehiculos",
+              "host": ["{{base_url}}"],
+              "path": ["vehiculos"]
+            },
+            "description": "➕ **Campos requeridos:**\n- placa: Placa única del vehículo (ej: ABC123)\n- color: Color del vehículo\n- tipo_vehiculo: Automóvil, Motocicleta, Camioneta, etc.\n- referencia_id: ID de la referencia del vehículo\n- cliente_id: ID del cliente propietario\n- estado: Activo/Inactivo (opcional, por defecto Activo)"
+          }
+        },
+        {
+          "name": "Actualizar Vehículo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"ABC123\",\n  \"color\": \"Azul Metalizado\",\n  \"tipo_vehiculo\": \"Automóvil\",\n  \"referencia_id\": 1,\n  \"cliente_id\": {{cliente_id}},\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/vehiculos/{{vehiculo_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["vehiculos", "{{vehiculo_id}}"]
+            },
+            "description": "✏️ Actualiza todos los campos del vehículo"
+          }
+        },
+        {
+          "name": "Cambiar Estado Vehículo",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/vehiculos/{{vehiculo_id}}/estado",
+              "host": ["{{base_url}}"],
+              "path": ["vehiculos", "{{vehiculo_id}}", "estado"]
+            },
+            "description": "🔄 Alterna el estado del vehículo entre Activo/Inactivo"
+          }
+        },
+        {
+          "name": "Eliminar Vehículo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/vehiculos/{{vehiculo_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["vehiculos", "{{vehiculo_id}}"]
+            },
+            "description": "🗑️ Elimina un vehículo del sistema"
+          }
+        },
+        {
+          "name": "Vehículos por Cliente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/vehiculos/cliente/{{cliente_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["vehiculos", "cliente", "{{cliente_id}}"]
+            },
+            "description": "👤 Lista todos los vehículos de un cliente específico"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Citas",
+      "description": "Sistema completo de gestión de citas",
+      "item": [
+        {
+          "name": "Listar Citas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar citas exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    if (response.length > 0) {",
+                  "        pm.collectionVariables.set('cita_id', response[0].id);",
+                  "        console.log('✅ Cita ID guardado:', response[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/citas",
+              "host": ["{{base_url}}"],
+              "path": ["citas"]
+            },
+            "description": "📋 Lista todas las citas con información completa"
+          }
+        },
+        {
+          "name": "Obtener Cita",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/citas/{{cita_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["citas", "{{cita_id}}"]
+            },
+            "description": "🔍 Obtiene una cita específica con todos los detalles"
+          }
+        },
+        {
+          "name": "Crear Cita",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cita creada exitosamente', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    if (response.id) {",
+                  "        pm.collectionVariables.set('cita_id', response.id);",
+                  "        console.log('✅ Nueva cita ID:', response.id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehiculo_id\": {{vehiculo_id}},\n  \"fecha\": \"2024-12-30\",\n  \"hora\": \"10:00:00\",\n  \"descripcion\": \"Mantenimiento preventivo completo\",\n  \"observaciones\": \"Cliente solicita revisión de frenos y cambio de aceite\",\n  \"estado_cita_id\": 1,\n  \"mecanico_id\": {{mecanico_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/citas",
+              "host": ["{{base_url}}"],
+              "path": ["citas"]
+            },
+            "description": "➕ **Campos requeridos:**\n- vehiculo_id: ID del vehículo\n- fecha: Fecha de la cita (YYYY-MM-DD)\n- hora: Hora de la cita (HH:MM:SS)\n- descripcion: Descripción del servicio\n- observaciones: Observaciones adicionales (opcional)\n- estado_cita_id: ID del estado (1=Programada, 2=En proceso, etc.)\n- mecanico_id: ID del mecánico asignado (opcional)"
+          }
+        },
+        {
+          "name": "Actualizar Cita",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehiculo_id\": {{vehiculo_id}},\n  \"fecha\": \"2024-12-30\",\n  \"hora\": \"14:00:00\",\n  \"descripcion\": \"Mantenimiento preventivo completo y revisión de suspensión\",\n  \"observaciones\": \"Cliente solicita revisión adicional de suspensión\",\n  \"estado_cita_id\": 2,\n  \"mecanico_id\": {{mecanico_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/citas/{{cita_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["citas", "{{cita_id}}"]
+            },
+            "description": "✏️ Actualiza todos los campos de la cita"
+          }
+        },
+        {
+          "name": "Eliminar Cita",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/citas/{{cita_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["citas", "{{cita_id}}"]
+            },
+            "description": "🗑️ Elimina una cita del sistema"
+          }
+        },
+        {
+          "name": "Citas por Cliente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/citas/cliente/{{cliente_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["citas", "cliente", "{{cliente_id}}"]
+            },
+            "description": "👤 Lista todas las citas de un cliente específico"
+          }
+        },
+        {
+          "name": "Citas por Fecha",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/citas/fecha/2024-12-30",
+              "host": ["{{base_url}}"],
+              "path": ["citas", "fecha", "2024-12-30"]
+            },
+            "description": "📅 Lista todas las citas de una fecha específica"
+          }
+        },
+        {
+          "name": "Historial de Citas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/citas/historial",
+              "host": ["{{base_url}}"],
+              "path": ["citas", "historial"]
+            },
+            "description": "📚 Obtiene el historial completo de citas"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Ventas",
+      "description": "Sistema completo de ventas",
+      "item": [
+        {
+          "name": "Listar Ventas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar ventas exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    if (response.length > 0) {",
+                  "        pm.collectionVariables.set('venta_id', response[0].id);",
+                  "        console.log('✅ Venta ID guardado:', response[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ventas",
+              "host": ["{{base_url}}"],
+              "path": ["ventas"]
+            },
+            "description": "📋 Lista todas las ventas con información completa"
+          }
+        },
+        {
+          "name": "Obtener Venta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ventas/{{venta_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["ventas", "{{venta_id}}"]
+            },
+            "description": "🔍 Obtiene una venta específica con todos los detalles"
+          }
+        },
+        {
+          "name": "Crear Venta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Venta creada exitosamente', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    if (response.id) {",
+                  "        pm.collectionVariables.set('venta_id', response.id);",
+                  "        console.log('✅ Nueva venta ID:', response.id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": {{cliente_id}},\n  \"fecha\": \"2024-12-27\",\n  \"total\": 250000,\n  \"descuento\": 25000,\n  \"subtotal\": 225000,\n  \"iva\": 42750,\n  \"total_final\": 267750,\n  \"metodo_pago\": \"Tarjeta de Crédito\",\n  \"observaciones\": \"Venta de repuestos y mano de obra\",\n  \"estado_venta_id\": 1,\n  \"cita_id\": {{cita_id}},\n  \"detalles\": [\n    {\n      \"tipo\": \"servicio\",\n      \"item_id\": 1,\n      \"cantidad\": 1,\n      \"precio_unitario\": 150000,\n      \"subtotal\": 150000\n    },\n    {\n      \"tipo\": \"repuesto\",\n      \"item_id\": 1,\n      \"cantidad\": 2,\n      \"precio_unitario\": 50000,\n      \"subtotal\": 100000\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/ventas",
+              "host": ["{{base_url}}"],
+              "path": ["ventas"]
+            },
+            "description": "➕ **Campos requeridos:**\n- cliente_id: ID del cliente\n- fecha: Fecha de la venta (YYYY-MM-DD)\n- total: Total antes de descuentos\n- descuento: Descuento aplicado (opcional)\n- subtotal: Total después de descuento\n- iva: IVA calculado\n- total_final: Total final con IVA\n- metodo_pago: Efectivo, Tarjeta, Transferencia, etc.\n- observaciones: Observaciones adicionales (opcional)\n- estado_venta_id: ID del estado de venta\n- cita_id: ID de la cita relacionada (opcional)\n- detalles: Array con servicios y repuestos vendidos"
+          }
+        },
+        {
+          "name": "Actualizar Venta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": {{cliente_id}},\n  \"fecha\": \"2024-12-27\",\n  \"total\": 300000,\n  \"descuento\": 30000,\n  \"subtotal\": 270000,\n  \"iva\": 51300,\n  \"total_final\": 321300,\n  \"metodo_pago\": \"Efectivo\",\n  \"observaciones\": \"Venta actualizada con descuento adicional\",\n  \"estado_venta_id\": 2,\n  \"cita_id\": {{cita_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/ventas/{{venta_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["ventas", "{{venta_id}}"]
+            },
+            "description": "✏️ Actualiza los campos principales de la venta"
+          }
+        },
+        {
+          "name": "Eliminar Venta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ventas/{{venta_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["ventas", "{{venta_id}}"]
+            },
+            "description": "🗑️ Elimina una venta del sistema"
+          }
+        },
+        {
+          "name": "Ventas por Cliente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ventas/cliente/{{cliente_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["ventas", "cliente", "{{cliente_id}}"]
+            },
+            "description": "👤 Lista todas las ventas de un cliente específico"
+          }
+        },
+        {
+          "name": "Ventas por Fecha",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ventas/fecha/2024-12-27",
+              "host": ["{{base_url}}"],
+              "path": ["ventas", "fecha", "2024-12-27"]
+            },
+            "description": "📅 Lista todas las ventas de una fecha específica"
+          }
+        },
+        {
+          "name": "Historial de Ventas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ventas/historial",
+              "host": ["{{base_url}}"],
+              "path": ["ventas", "historial"]
+            },
+            "description": "📚 Obtiene el historial completo de ventas"
+          }
+        },
+        {
+          "name": "Vincular Venta con Cita",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cita_id\": {{cita_id}}\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/ventas/{{venta_id}}/vincular-cita",
+              "host": ["{{base_url}}"],
+              "path": ["ventas", "{{venta_id}}", "vincular-cita"]
+            },
+            "description": "🔗 Vincula una venta existente con una cita"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛠️ Servicios",
+      "description": "Gestión de servicios del taller",
+      "item": [
+        {
+          "name": "Listar Servicios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar servicios exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    if (response.length > 0) {",
+                  "        pm.collectionVariables.set('servicio_id', response[0].id);",
+                  "        console.log('✅ Servicio ID guardado:', response[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/servicios",
+              "host": ["{{base_url}}"],
+              "path": ["servicios"]
+            },
+            "description": "📋 Lista todos los servicios disponibles"
+          }
+        },
+        {
+          "name": "Obtener Servicio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/servicios/{{servicio_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["servicios", "{{servicio_id}}"]
+            },
+            "description": "🔍 Obtiene un servicio específico por ID"
+          }
+        },
+        {
+          "name": "Crear Servicio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Servicio creado exitosamente', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    if (response.id) {",
+                  "        pm.collectionVariables.set('servicio_id', response.id);",
+                  "        console.log('✅ Nuevo servicio ID:', response.id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mantenimiento Preventivo\",\n  \"descripcion\": \"Revisión completa del vehículo\",\n  \"precio\": 150000,\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/servicios",
+              "host": ["{{base_url}}"],
+              "path": ["servicios"]
+            },
+            "description": "➕ **Campos requeridos:**\n- nombre: Nombre del servicio\n- descripcion: Descripción detallada del servicio\n- precio: Precio del servicio\n- estado: Activo/Inactivo (opcional, por defecto Activo)"
+          }
+        },
+        {
+          "name": "Actualizar Servicio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Mantenimiento Preventivo\",\n  \"descripcion\": \"Revisión completa del vehículo con revisión adicional de frenos\",\n  \"precio\": 160000,\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/servicios/{{servicio_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["servicios", "{{servicio_id}}"]
+            },
+            "description": "✏️ Actualiza todos los campos del servicio"
+          }
+        },
+        {
+          "name": "Cambiar Estado Servicio",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/servicios/{{servicio_id}}/estado",
+              "host": ["{{base_url}}"],
+              "path": ["servicios", "{{servicio_id}}", "estado"]
+            },
+            "description": "🔄 Alterna el estado del servicio entre Activo/Inactivo"
+          }
+        },
+        {
+          "name": "Eliminar Servicio",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/servicios/{{servicio_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["servicios", "{{servicio_id}}"]
+            },
+            "description": "🗑️ Elimina un servicio del sistema"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Repuestos",
+      "description": "Gestión de repuestos del taller",
+      "item": [
+        {
+          "name": "Listar Repuestos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar repuestos exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    if (response.length > 0) {",
+                  "        pm.collectionVariables.set('repuesto_id', response[0].id);",
+                  "        console.log('✅ Repuesto ID guardado:', response[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repuestos",
+              "host": ["{{base_url}}"],
+              "path": ["repuestos"]
+            },
+            "description": "📋 Lista todos los repuestos disponibles"
+          }
+        },
+        {
+          "name": "Obtener Repuesto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repuestos/{{repuesto_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["repuestos", "{{repuesto_id}}"]
+            },
+            "description": "🔍 Obtiene un repuesto específico por ID"
+          }
+        },
+        {
+          "name": "Crear Repuesto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Repuesto creado exitosamente', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    if (response.id) {",
+                  "        pm.collectionVariables.set('repuesto_id', response.id);",
+                  "        console.log('✅ Nuevo repuesto ID:', response.id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Filtro de Aceite\",\n  \"descripcion\": \"Filtro de aceite para automóviles\",\n  \"precio\": 50000,\n  \"stock\": 100,\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/repuestos",
+              "host": ["{{base_url}}"],
+              "path": ["repuestos"]
+            },
+            "description": "➕ **Campos requeridos:**\n- nombre: Nombre del repuesto\n- descripcion: Descripción detallada del repuesto\n- precio: Precio del repuesto\n- stock: Cantidad disponible en stock\n- estado: Activo/Inactivo (opcional, por defecto Activo)"
+          }
+        },
+        {
+          "name": "Actualizar Repuesto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Filtro de Aceite\",\n  \"descripcion\": \"Filtro de aceite para automóviles de alto rendimiento\",\n  \"precio\": 55000,\n  \"stock\": 95,\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/repuestos/{{repuesto_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["repuestos", "{{repuesto_id}}"]
+            },
+            "description": "✏️ Actualiza todos los campos del repuesto"
+          }
+        },
+        {
+          "name": "Cambiar Estado Repuesto",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repuestos/{{repuesto_id}}/estado",
+              "host": ["{{base_url}}"],
+              "path": ["repuestos", "{{repuesto_id}}", "estado"]
+            },
+            "description": "🔄 Alterna el estado del repuesto entre Activo/Inactivo"
+          }
+        },
+        {
+          "name": "Eliminar Repuesto",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/repuestos/{{repuesto_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["repuestos", "{{repuesto_id}}"]
+            },
+            "description": "🗑️ Elimina un repuesto del sistema"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👨‍🔧 Mecánicos",
+      "description": "Gestión de mecánicos del taller",
+      "item": [
+        {
+          "name": "Listar Mecánicos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listar mecánicos exitoso', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    if (response.length > 0) {",
+                  "        pm.collectionVariables.set('mecanico_id', response[0].id);",
+                  "        console.log('✅ Mecánico ID guardado:', response[0].id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/mecanicos",
+              "host": ["{{base_url}}"],
+              "path": ["mecanicos"]
+            },
+            "description": "📋 Lista todos los mecánicos registrados"
+          }
+        },
+        {
+          "name": "Obtener Mecánico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/mecanicos/{{mecanico_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["mecanicos", "{{mecanico_id}}"]
+            },
+            "description": "🔍 Obtiene un mecánico específico por ID"
+          }
+        },
+        {
+          "name": "Crear Mecánico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Mecánico creado exitosamente', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const response = pm.response.json();",
+                  "    if (response.id) {",
+                  "        pm.collectionVariables.set('mecanico_id', response.id);",
+                  "        console.log('✅ Nuevo mecánico ID:', response.id);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"López\",\n  \"email\": \"carlos.lopez@email.com\",\n  \"telefono\": \"3009876543\",\n  \"especialidad\": \"Suspensión\",\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mecanicos",
+              "host": ["{{base_url}}"],
+              "path": ["mecanicos"]
+            },
+            "description": "➕ **Campos requeridos:**\n- nombre: Nombre del mecánico\n- apellido: Apellido del mecánico\n- email: Correo electrónico único\n- telefono: Número de teléfono\n- especialidad: Área de especialización del mecánico\n- estado: Activo/Inactivo (opcional, por defecto Activo)"
+          }
+        },
+        {
+          "name": "Actualizar Mecánico",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos\",\n  \"apellido\": \"López\",\n  \"email\": \"carlos.lopez.nuevo@email.com\",\n  \"telefono\": \"3009876543\",\n  \"especialidad\": \"Suspensión y Frenos\",\n  \"estado\": \"Activo\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mecanicos/{{mecanico_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["mecanicos", "{{mecanico_id}}"]
+            },
+            "description": "✏️ Actualiza todos los campos del mecánico"
+          }
+        },
+        {
+          "name": "Cambiar Estado Mecánico",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/mecanicos/{{mecanico_id}}/estado",
+              "host": ["{{base_url}}"],
+              "path": ["mecanicos", "{{mecanico_id}}", "estado"]
+            },
+            "description": "🔄 Alterna el estado del mecánico entre Activo/Inactivo"
+          }
+        },
+        {
+          "name": "Eliminar Mecánico",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/mecanicos/{{mecanico_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["mecanicos", "{{mecanico_id}}"]
+            },
+            "description": "🗑️ Elimina un mecánico del sistema"
+          }
+        }
+      ]
+    }
+  ]
+}

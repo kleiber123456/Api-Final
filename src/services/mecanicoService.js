@@ -1,5 +1,7 @@
 // src/services/mecanicoService.js
 const MecanicoModel = require("../models/mecanicoModel")
+const CitaService = require("./citaService")
+const HorarioService = require("./horarioService")
 
 const MecanicoService = {
   listar: () => MecanicoModel.findAll(),
@@ -82,6 +84,42 @@ const MecanicoService = {
   obtenerCitas: (id) => MecanicoModel.getCitasByMecanico(id),
 
   obtenerEstadisticas: (id) => MecanicoModel.getEstadisticasByMecanico(id),
+
+  // Métodos para rutas prioritarias
+  async obtenerCitasAsignadas(mecanicoId) {
+    return await CitaService.obtenerPorMecanico(mecanicoId)
+  },
+
+  async actualizarEstadoCita(citaId, mecanicoId, estado) {
+    // Verificar que la cita pertenezca al mecánico
+    const cita = await CitaService.obtener(citaId)
+    if (!cita || cita.mecanico_id !== mecanicoId) {
+      throw new Error("Cita no encontrada o no asignada a este mecánico")
+    }
+    return await CitaService.cambiarEstado(citaId, estado)
+  },
+
+  async registrarTrabajo(citaId, mecanicoId, trabajoData) {
+    // Verificar que la cita pertenezca al mecánico
+    const cita = await CitaService.obtener(citaId)
+    if (!cita || cita.mecanico_id !== mecanicoId) {
+      throw new Error("Cita no encontrada o no asignada a este mecánico")
+    }
+    
+    // Aquí se podría implementar la lógica para registrar el trabajo
+    // Por ahora solo actualizamos las observaciones de la cita
+    return await CitaService.actualizar(citaId, {
+      observaciones: trabajoData.observaciones || cita.observaciones
+    })
+  },
+
+  async obtenerMiHorario(mecanicoId) {
+    return await HorarioService.obtenerPorMecanico(mecanicoId)
+  },
+
+  async obtenerMisEstadisticas(mecanicoId) {
+    return await this.obtenerEstadisticas(mecanicoId)
+  },
 }
 
 module.exports = MecanicoService

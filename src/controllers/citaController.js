@@ -136,6 +136,45 @@ const CitaController = {
       res.status(500).json({ error: "Error al obtener el historial del vehículo" })
     }
   },
+
+  // Métodos para rutas prioritarias
+  async solicitarCita(req, res) {
+    try {
+      const citaData = { ...req.body, cliente_id: req.user.id }
+      const id = await CitaService.solicitarCita(citaData)
+      res.status(201).json({ message: "Cita solicitada exitosamente", id })
+    } catch (error) {
+      res.status(400).json({ error: error.message })
+    }
+  },
+
+  async agendarCita(req, res) {
+    try {
+      const id = await CitaService.agendarCita(req.body)
+      res.status(201).json({ message: "Cita agendada exitosamente", id })
+    } catch (error) {
+      res.status(400).json({ error: error.message })
+    }
+  },
+
+  async asignarMecanico(req, res) {
+    try {
+      await CitaService.asignarMecanico(req.params.id, req.body.mecanico_id)
+      res.json({ message: "Mecánico asignado exitosamente" })
+    } catch (error) {
+      res.status(400).json({ error: error.message })
+    }
+  },
+
+  async verificarDisponibilidad(req, res) {
+    try {
+      const { fecha, hora, mecanico_id } = req.query
+      const disponibilidad = await CitaService.verificarDisponibilidad(fecha, hora, mecanico_id)
+      res.json(disponibilidad)
+    } catch (error) {
+      res.status(500).json({ error: "Error al verificar disponibilidad" })
+    }
+  },
 }
 
 module.exports = CitaController

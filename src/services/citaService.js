@@ -108,6 +108,48 @@ const CitaService = {
   },
 
   verificarDisponibilidadMecanicos: (fecha, hora) => HorarioModel.verificarDisponibilidad(fecha, hora),
+
+  // Métodos para rutas prioritarias
+  async solicitarCita(data) {
+    // Para solicitar cita, no necesitamos mecánico asignado inicialmente
+    const citaData = {
+      ...data,
+      estado_cita_id: 1, // Estado "Solicitada"
+      mecanico_id: null // Se asignará después
+    }
+    return await this.crear(citaData)
+  },
+
+  async agendarCita(data) {
+    // Para agendar cita, necesitamos todos los datos
+    return await this.crear(data)
+  },
+
+  async asignarMecanico(citaId, mecanicoId) {
+    const cita = await CitaModel.findById(citaId)
+    if (!cita) {
+      throw new Error("Cita no encontrada")
+    }
+
+    // Verificar disponibilidad del mecánico
+    const disponible = await CitaModel.verificarDisponibilidadMecanico(mecanicoId, cita.fecha, cita.hora, citaId)
+    if (!disponible) {
+      throw new Error("El mecánico ya tiene una cita programada en esta fecha y hora")
+    }
+
+    return await CitaModel.update(citaId, { mecanico_id: mecanicoId })
+  },
+
+  async verificarDisponibilidad(fecha, hora, mecanicoId = null) {
+    if (mecanicoId) {
+      // Verificar disponibilidad de un mecánico específico
+      const disponible = await CitaModel.verificarDisponibilidadMecanico(mecanicoId, fecha, hora)
+      return { disponible, mecanico_id: mecanicoId }
+    } else {
+      // Verificar disponibilidad de todos los mecánicos
+      return await HorarioModel.verificarDisponibilidad(fecha, hora)
+    }
+  },
 }
 
 module.exports = CitaService

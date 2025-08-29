@@ -96,6 +96,52 @@ const MecanicoController = {
       res.status(500).json({ error: "Error al obtener las estadísticas del mecánico" });
     }
   },
+
+  // Métodos para rutas prioritarias
+  async obtenerCitasAsignadas(req, res) {
+    try {
+      const citas = await MecanicoService.obtenerCitasAsignadas(req.user.id);
+      res.json(citas);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener las citas asignadas" });
+    }
+  },
+
+  async actualizarEstadoCita(req, res) {
+    try {
+      await MecanicoService.actualizarEstadoCita(req.params.id, req.user.id, req.body.estado);
+      res.json({ message: "Estado de cita actualizado exitosamente" });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  },
+
+  async registrarTrabajo(req, res) {
+    try {
+      await MecanicoService.registrarTrabajo(req.params.id, req.user.id, req.body);
+      res.json({ message: "Trabajo registrado exitosamente" });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  },
+
+  async obtenerMiHorario(req, res) {
+    try {
+      const horario = await MecanicoService.obtenerMiHorario(req.user.id);
+      res.json(horario);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener el horario" });
+    }
+  },
+
+  async obtenerMisEstadisticas(req, res) {
+    try {
+      const estadisticas = await MecanicoService.obtenerMisEstadisticas(req.user.id);
+      res.json(estadisticas);
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener las estadísticas" });
+    }
+  },
 };
 
 module.exports = MecanicoController;

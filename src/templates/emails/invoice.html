@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura - MotOrtega</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); padding: 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px;">🧾 Factura</h1>
+            <p style="color: #ffffff; margin: 10px 0 0 0; font-size: 16px;">MotOrtega - Tu taller de confianza</p>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 40px 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <div>
+                    <h2 style="color: #333; margin: 0;">Factura #{{numero_venta}}</h2>
+                    <p style="color: #666; margin: 5px 0 0 0;">Fecha: {{fecha}}</p>
+                </div>
+                <div style="text-align: right;">
+                    <h3 style="color: #dc3545; margin: 0; font-size: 24px;">${{total}}</h3>
+                    <p style="color: #666; margin: 5px 0 0 0;">Total</p>
+                </div>
+            </div>
+
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #333; margin: 0 0 15px 0;">👤 Información del cliente:</h3>
+                <p style="color: #666; margin: 5px 0;"><strong>Nombre:</strong> {{cliente_nombre}} {{cliente_apellido}}</p>
+            </div>
+
+            {{#if servicios.length}}
+            <div style="margin: 20px 0;">
+                <h3 style="color: #333; margin: 0 0 15px 0;">🔧 Servicios:</h3>
+                <div style="background-color: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background-color: #f8f9fa;">
+                            <tr>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e9ecef;">Servicio</th>
+                                <th style="padding: 12px; text-align: right; border-bottom: 1px solid #e9ecef;">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each servicios}}
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">{{nombre}}</td>
+                                <td style="padding: 12px; text-align: right; border-bottom: 1px solid #e9ecef;">${{precio}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{/if}}
+
+            {{#if repuestos.length}}
+            <div style="margin: 20px 0;">
+                <h3 style="color: #333; margin: 0 0 15px 0;">🔩 Repuestos:</h3>
+                <div style="background-color: #ffffff; border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background-color: #f8f9fa;">
+                            <tr>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid #e9ecef;">Repuesto</th>
+                                <th style="padding: 12px; text-align: center; border-bottom: 1px solid #e9ecef;">Cantidad</th>
+                                <th style="padding: 12px; text-align: right; border-bottom: 1px solid #e9ecef;">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each repuestos}}
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid #e9ecef;">{{nombre}}</td>
+                                <td style="padding: 12px; text-align: center; border-bottom: 1px solid #e9ecef;">{{cantidad}}</td>
+                                <td style="padding: 12px; text-align: right; border-bottom: 1px solid #e9ecef;">${{precio_venta}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{/if}}
+
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
+                <h3 style="color: #333; margin: 0 0 10px 0;">Total: ${{total}}</h3>
+                <p style="color: #666; margin: 0; font-size: 14px;">Incluye todos los servicios y repuestos</p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{loginUrl}}" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 25px; display: inline-block; font-weight: bold;">
+                    📱 Ver mis facturas
+                </a>
+            </div>
+
+            <div style="background-color: #e8f5e8; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+                <h4 style="color: #155724; margin: 0 0 10px 0;">✅ Gracias por tu confianza:</h4>
+                <p style="color: #155724; margin: 0;">Esperamos verte pronto en MotOrtega. ¡Tu vehículo está en buenas manos!</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e9ecef;">
+            <p style="color: #666; margin: 0; font-size: 14px;">
+                © 2024 MotOrtega. Todos los derechos reservados.
+            </p>
+            <p style="color: #999; margin: 10px 0 0 0; font-size: 12px;">
+                Este es un mensaje automático, por favor no respondas a este correo.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

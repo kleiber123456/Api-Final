@@ -58,6 +58,44 @@ const ClienteController = {
       res.status(500).json({ error: "Error al cambiar el estado del cliente" })
     }
   },
+
+  // Métodos para rutas prioritarias
+  async registrarVehiculo(req, res) {
+    try {
+      const vehiculoData = { ...req.body, cliente_id: req.user.id }
+      const id = await ClienteService.registrarVehiculo(vehiculoData)
+      res.status(201).json({ message: "Vehículo registrado exitosamente", id })
+    } catch (error) {
+      res.status(400).json({ error: error.message })
+    }
+  },
+
+  async obtenerMisCitas(req, res) {
+    try {
+      const citas = await ClienteService.obtenerMisCitas(req.user.id)
+      res.json(citas)
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener las citas" })
+    }
+  },
+
+  async obtenerMisVentas(req, res) {
+    try {
+      const ventas = await ClienteService.obtenerMisVentas(req.user.id)
+      res.json(ventas)
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener las ventas" })
+    }
+  },
+
+  async actualizarPerfil(req, res) {
+    try {
+      await ClienteService.actualizarPerfil(req.user.id, req.body)
+      res.json({ message: "Perfil actualizado exitosamente" })
+    } catch (error) {
+      res.status(400).json({ error: error.message })
+    }
+  },
 }
 
 module.exports = ClienteController
