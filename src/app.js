@@ -34,10 +34,11 @@ const app = express()
 app.use(helmet())
 
 // Configuración de CORS
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-  credentials: true
-}))
+app.use(cors());
+// app.use(cors({
+//   origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+//   credentials: true
+// }))
 
 // Rate limiting
 const limiter = rateLimit({
