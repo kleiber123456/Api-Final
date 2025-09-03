@@ -84,9 +84,17 @@ const VehiculoController = {
 
   async obtenerMisVehiculos(req, res) {
     try {
+      console.log("[v0] Usuario ID from JWT:", req.user.id)
+      console.log("[v0] Usuario object:", req.user)
+
       const vehiculos = await VehiculoService.obtenerMisVehiculos(req.user.id)
+
+      console.log("[v0] Vehiculos found:", vehiculos)
+      console.log("[v0] Number of vehiculos:", vehiculos.length)
+
       res.json(vehiculos)
     } catch (error) {
+      console.log("[v0] Error in obtenerMisVehiculos:", error)
       res.status(500).json({ error: "Error al obtener sus vehículos" })
     }
   },
