@@ -17,9 +17,14 @@ const VehiculoModel = {
     return rows[0]
   },
 
-  findByCliente: async (clienteId) => {
+  findByClienteId: async (clienteId) => {
     const [rows] = await db.query(
-      `SELECT v.*, r.nombre AS referencia_nombre, m.nombre AS marca_nombre FROM vehiculo v JOIN referencia r ON v.referencia_id = r.id JOIN marca m ON r.marca_id = m.id WHERE v.cliente_id = ? ORDER BY v.placa`,
+      `SELECT v.*, r.nombre AS referencia_nombre, m.nombre AS marca_nombre 
+       FROM vehiculo v 
+       JOIN referencia r ON v.referencia_id = r.id 
+       JOIN marca m ON r.marca_id = m.id 
+       WHERE v.cliente_id = ? 
+       ORDER BY v.placa`,
       [clienteId],
     )
     return rows
@@ -50,17 +55,16 @@ const VehiculoModel = {
     await db.query("UPDATE vehiculo SET estado = ? WHERE id = ?", [estado, id])
   },
 
-  createForClient: async (data) => {
-    const { placa, marca, modelo, color, anio, cliente_id } = data
-    const [result] = await db.query(
-      "INSERT INTO vehiculo (placa, marca, modelo, color, anio, cliente_id) VALUES (?, ?, ?, ?, ?, ?)",
-      [placa, marca, modelo, color, anio, cliente_id],
-    )
-    return result.insertId
-  },
-
   findByUsuarioId: async (clienteId) => {
-    const [rows] = await db.query("SELECT * FROM vehiculo WHERE cliente_id = ? ORDER BY placa", [clienteId])
+    const [rows] = await db.query(
+      `SELECT v.*, r.nombre AS referencia_nombre, m.nombre AS marca_nombre 
+       FROM vehiculo v 
+       JOIN referencia r ON v.referencia_id = r.id 
+       JOIN marca m ON r.marca_id = m.id 
+       WHERE v.cliente_id = ? 
+       ORDER BY v.placa`,
+      [clienteId],
+    )
     return rows
   },
 
@@ -70,10 +74,10 @@ const VehiculoModel = {
   },
 
   updateByOwner: async (vehiculoId, data, clienteId) => {
-    const { placa, marca, modelo, color, anio } = data
+    const { placa, color, tipo_vehiculo, referencia_id, estado } = data
     await db.query(
-      "UPDATE vehiculo SET placa = ?, marca = ?, modelo = ?, color = ?, anio = ? WHERE id = ? AND cliente_id = ?",
-      [placa, marca, modelo, color, anio, vehiculoId, clienteId],
+      "UPDATE vehiculo SET placa = ?, color = ?, tipo_vehiculo = ?, referencia_id = ?, estado = ? WHERE id = ? AND cliente_id = ?",
+      [placa, color, tipo_vehiculo, referencia_id, estado, vehiculoId, clienteId],
     )
   },
 }
