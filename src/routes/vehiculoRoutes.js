@@ -12,8 +12,8 @@ router.put("/:id", verifyToken, authorizeRoles(1, 2), VehiculoController.actuali
 router.put("/:id/cambiar-estado", verifyToken, authorizeRoles(1), VehiculoController.cambiarEstado)
 router.delete("/:id", verifyToken, authorizeRoles(1), VehiculoController.eliminar)
 
-router.post("/cliente", verifyToken, VehiculoController.crearVehiculoCliente)
-router.get("/cliente/mis-vehiculos", verifyToken, VehiculoController.obtenerMisVehiculos)
-router.put("/cliente/:id", verifyToken, VehiculoController.editarMiVehiculo)
+router.post("/crear-vehiculo", verifyToken, VehiculoController.crearVehiculoCliente)
+router.get("/mis-vehiculos", verifyToken, VehiculoController.obtenerMisVehiculos)
+router.put("/editar-vehiculo/:id", verifyToken, VehiculoController.editarMiVehiculo)
 
 module.exports = router
