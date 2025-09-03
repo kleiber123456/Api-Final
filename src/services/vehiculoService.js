@@ -16,6 +16,14 @@ const VehiculoService = {
     await VehiculoModel.cambiarEstado(id, nuevoEstado)
     return nuevoEstado
   },
+
+  crearVehiculoCliente: (data) => VehiculoModel.createForClient(data),
+
+  obtenerMisVehiculos: (usuarioId) => VehiculoModel.findByUsuarioId(usuarioId),
+
+  verificarPropietario: (vehiculoId, usuarioId) => VehiculoModel.verifyOwnership(vehiculoId, usuarioId),
+
+  editarMiVehiculo: (vehiculoId, data, usuarioId) => VehiculoModel.updateByOwner(vehiculoId, data, usuarioId),
 }
 
 module.exports = VehiculoService

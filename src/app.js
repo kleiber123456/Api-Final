@@ -65,6 +65,11 @@ app.get("/", (req, res) => {
       // Perfil de usuario
       miPerfil: "/api/usuarios/mi-perfil (GET/PUT)",
 
+      // Endpoints específicos para clientes autenticados
+      misVehiculos: "/api/vehiculos/mis-vehiculos (GET) - Requiere autenticación",
+      crearMiVehiculo: "/api/vehiculos/crear-vehiculo (POST) - Requiere autenticación",
+      editarMiVehiculo: "/api/vehiculos/editar-vehiculo/:id (PUT) - Requiere autenticación",
+
       // Cambios de estado
       cambiarEstadoUsuario: "/api/usuarios/:id/cambiar-estado (PUT)",
       cambiarEstadoRol: "/api/roles/:id/cambiar-estado (PUT)",
@@ -190,6 +195,22 @@ app.get("/", (req, res) => {
 
     // Ejemplos de uso
     ejemplosUso: {
+      clienteVehiculos: {
+        descripcion: "Gestión de vehículos por cliente autenticado",
+        endpoints: {
+          listar: "GET /api/vehiculos/mis-vehiculos (Headers: Authorization: Bearer <token>)",
+          crear: "POST /api/vehiculos/crear-vehiculo (Headers: Authorization: Bearer <token>)",
+          editar: "PUT /api/vehiculos/editar-vehiculo/:id (Headers: Authorization: Bearer <token>)",
+        },
+        ejemploCrear: {
+          marca_id: 1,
+          referencia_id: 1,
+          placa: "ABC123",
+          año: 2020,
+          color: "Rojo",
+          kilometraje: 50000,
+        },
+      },
       ventaSinCita: {
         descripcion: "Crear venta independiente sin vincular a cita",
         endpoint: "POST /api/ventas",

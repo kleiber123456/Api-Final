@@ -67,6 +67,47 @@ const VehiculoController = {
       res.status(500).json({ error: "Error al cambiar el estado del vehículo" })
     }
   },
+
+  async crearVehiculoCliente(req, res) {
+    try {
+      // Automatically assign the authenticated user's ID as usuario_id
+      const vehiculoData = {
+        ...req.body,
+        usuario_id: req.user.id,
+      }
+      const id = await VehiculoService.crearVehiculoCliente(vehiculoData)
+      res.status(201).json({ message: "Vehículo creado exitosamente", id })
+    } catch (error) {
+      res.status(500).json({ error: "Error al crear el vehículo" })
+    }
+  },
+
+  async obtenerMisVehiculos(req, res) {
+    try {
+      const vehiculos = await VehiculoService.obtenerMisVehiculos(req.user.id)
+      res.json(vehiculos)
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener sus vehículos" })
+    }
+  },
+
+  async editarMiVehiculo(req, res) {
+    try {
+      const vehiculoId = req.params.id
+      const usuarioId = req.user.id
+
+      // Verify the vehicle belongs to the authenticated user
+      const vehiculoExistente = await VehiculoService.verificarPropietario(vehiculoId, usuarioId)
+      if (!vehiculoExistente) {
+        return res.status(404).json({ error: "Vehículo no encontrado o no autorizado" })
+      }
+
+      await VehiculoService.editarMiVehiculo(vehiculoId, req.body, usuarioId)
+      res.json({ message: "Vehículo actualizado exitosamente" })
+    } catch (error) {
+      res.status(500).json({ error: "Error al actualizar el vehículo" })
+    }
+  },
 }
 
 module.exports = VehiculoController
