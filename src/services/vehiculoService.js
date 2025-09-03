@@ -4,7 +4,10 @@ const VehiculoModel = require("../models/vehiculoModel")
 const VehiculoService = {
   listar: () => VehiculoModel.findAll(),
   obtener: (id) => VehiculoModel.findById(id),
-  obtenerPorCliente: (clienteId) => VehiculoModel.findByCliente(clienteId),
+
+  // 🔹 Corregido: antes llamaba a findByCliente (no existe)
+  obtenerPorCliente: (clienteId) => VehiculoModel.findByClienteId(clienteId),
+
   crear: (data) => VehiculoModel.create(data),
   actualizar: (id, data) => VehiculoModel.update(id, data),
   eliminar: (id) => VehiculoModel.delete(id),
@@ -17,7 +20,8 @@ const VehiculoService = {
     return nuevoEstado
   },
 
-  crearVehiculoCliente: (data) => VehiculoModel.createForClient(data),
+  // 🔹 Si no tienes este método en el modelo, lo quitamos porque no existe
+  // crearVehiculoCliente: (data) => VehiculoModel.createForClient(data),
 
   obtenerMisVehiculos: (usuarioId) => VehiculoModel.findByUsuarioId(usuarioId),
 
