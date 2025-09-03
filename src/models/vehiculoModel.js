@@ -51,29 +51,29 @@ const VehiculoModel = {
   },
 
   createForClient: async (data) => {
-    const { placa, marca, modelo, color, anio, usuario_id } = data
+    const { placa, marca, modelo, color, anio, cliente_id } = data
     const [result] = await db.query(
-      "INSERT INTO vehiculo (placa, marca, modelo, color, anio, usuario_id) VALUES (?, ?, ?, ?, ?, ?)",
-      [placa, marca, modelo, color, anio, usuario_id],
+      "INSERT INTO vehiculo (placa, marca, modelo, color, anio, cliente_id) VALUES (?, ?, ?, ?, ?, ?)",
+      [placa, marca, modelo, color, anio, cliente_id],
     )
     return result.insertId
   },
 
-  findByUsuarioId: async (usuarioId) => {
-    const [rows] = await db.query("SELECT * FROM vehiculo WHERE usuario_id = ? ORDER BY placa", [usuarioId])
+  findByUsuarioId: async (clienteId) => {
+    const [rows] = await db.query("SELECT * FROM vehiculo WHERE cliente_id = ? ORDER BY placa", [clienteId])
     return rows
   },
 
-  verifyOwnership: async (vehiculoId, usuarioId) => {
-    const [rows] = await db.query("SELECT id FROM vehiculo WHERE id = ? AND usuario_id = ?", [vehiculoId, usuarioId])
+  verifyOwnership: async (vehiculoId, clienteId) => {
+    const [rows] = await db.query("SELECT id FROM vehiculo WHERE id = ? AND cliente_id = ?", [vehiculoId, clienteId])
     return rows[0]
   },
 
-  updateByOwner: async (vehiculoId, data, usuarioId) => {
+  updateByOwner: async (vehiculoId, data, clienteId) => {
     const { placa, marca, modelo, color, anio } = data
     await db.query(
-      "UPDATE vehiculo SET placa = ?, marca = ?, modelo = ?, color = ?, anio = ? WHERE id = ? AND usuario_id = ?",
-      [placa, marca, modelo, color, anio, vehiculoId, usuarioId],
+      "UPDATE vehiculo SET placa = ?, marca = ?, modelo = ?, color = ?, anio = ? WHERE id = ? AND cliente_id = ?",
+      [placa, marca, modelo, color, anio, vehiculoId, clienteId],
     )
   },
 }
