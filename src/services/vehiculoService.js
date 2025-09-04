@@ -4,10 +4,7 @@ const VehiculoModel = require("../models/vehiculoModel")
 const VehiculoService = {
   listar: () => VehiculoModel.findAll(),
   obtener: (id) => VehiculoModel.findById(id),
-
-  // 🔹 Corregido: antes llamaba a findByCliente (no existe)
   obtenerPorCliente: (clienteId) => VehiculoModel.findByClienteId(clienteId),
-
   crear: (data) => VehiculoModel.create(data),
   actualizar: (id, data) => VehiculoModel.update(id, data),
   eliminar: (id) => VehiculoModel.delete(id),
@@ -20,14 +17,13 @@ const VehiculoService = {
     return nuevoEstado
   },
 
-  // 🔹 Si no tienes este método en el modelo, lo quitamos porque no existe
-  // crearVehiculoCliente: (data) => VehiculoModel.createForClient(data),
+  crearVehiculoCliente: (data) => VehiculoModel.create(data),
 
-  obtenerMisVehiculos: (usuarioId) => VehiculoModel.findByUsuarioId(usuarioId),
+  obtenerDetalleVehiculoCliente: (vehiculoId, clienteId) => VehiculoModel.findByIdAndClienteId(vehiculoId, clienteId),
 
-  verificarPropietario: (vehiculoId, usuarioId) => VehiculoModel.verifyOwnership(vehiculoId, usuarioId),
+  verificarPropietario: (vehiculoId, clienteId) => VehiculoModel.verifyOwnership(vehiculoId, clienteId),
 
-  editarMiVehiculo: (vehiculoId, data, usuarioId) => VehiculoModel.updateByOwner(vehiculoId, data, usuarioId),
+  editarVehiculoCliente: (vehiculoId, data, clienteId) => VehiculoModel.updateByOwner(vehiculoId, data, clienteId),
 }
 
 module.exports = VehiculoService

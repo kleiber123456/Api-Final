@@ -66,9 +66,10 @@ app.get("/", (req, res) => {
       miPerfil: "/api/usuarios/mi-perfil (GET/PUT)",
 
       // Endpoints específicos para clientes autenticados
-      misVehiculos: "/api/vehiculos/mis-vehiculos (GET) - Requiere autenticación",
-      crearMiVehiculo: "/api/vehiculos/crear-vehiculo (POST) - Requiere autenticación",
-      editarMiVehiculo: "/api/vehiculos/editar-vehiculo/:id (PUT) - Requiere autenticación",
+      misVehiculos: "/api/vehiculos/cliente/:clienteId (GET)",
+      crearMiVehiculo: "/api/vehiculos/cliente/crear (POST) - Requiere autenticación",
+      editarMiVehiculo: "/api/vehiculos/cliente/editar/:id (PUT) - Requiere autenticación",
+      detalleMiVehiculo: "/api/vehiculos/cliente/detalle/:id (GET) - Requiere autenticación",
 
       // Cambios de estado
       cambiarEstadoUsuario: "/api/usuarios/:id/cambiar-estado (PUT)",
@@ -198,9 +199,10 @@ app.get("/", (req, res) => {
       clienteVehiculos: {
         descripcion: "Gestión de vehículos por cliente autenticado",
         endpoints: {
-          listar: "GET /api/vehiculos/mis-vehiculos (Headers: Authorization: Bearer <token>)",
-          crear: "POST /api/vehiculos/crear-vehiculo (Headers: Authorization: Bearer <token>)",
-          editar: "PUT /api/vehiculos/editar-vehiculo/:id (Headers: Authorization: Bearer <token>)",
+          listar: "GET /api/vehiculos/cliente/:clienteId",
+          crear: "POST /api/vehiculos/cliente/crear (Headers: Authorization: Bearer <token>)",
+          editar: "PUT /api/vehiculos/cliente/editar/:id (Headers: Authorization: Bearer <token>)",
+          detalle: "GET /api/vehiculos/cliente/detalle/:id (Headers: Authorization: Bearer <token>)",
         },
         ejemploCrear: {
           marca_id: 1,

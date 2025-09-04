@@ -70,10 +70,9 @@ const VehiculoController = {
 
   async crearVehiculoCliente(req, res) {
     try {
-      // Automatically assign the authenticated user's ID as usuario_id
       const vehiculoData = {
         ...req.body,
-        usuario_id: req.user.id,
+        cliente_id: req.user.id,
       }
       const id = await VehiculoService.crearVehiculoCliente(vehiculoData)
       res.status(201).json({ message: "Vehículo creado exitosamente", id })
@@ -82,35 +81,33 @@ const VehiculoController = {
     }
   },
 
-  async obtenerMisVehiculos(req, res) {
+  async obtenerDetalleVehiculoCliente(req, res) {
     try {
-      console.log("[v0] Usuario ID from JWT:", req.user.id)
-      console.log("[v0] Usuario object:", req.user)
+      const vehiculoId = req.params.id
+      const clienteId = req.user.id
 
-      const vehiculos = await VehiculoService.obtenerMisVehiculos(req.user.id)
-
-      console.log("[v0] Vehiculos found:", vehiculos)
-      console.log("[v0] Number of vehiculos:", vehiculos.length)
-
-      res.json(vehiculos)
+      const vehiculo = await VehiculoService.obtenerDetalleVehiculoCliente(vehiculoId, clienteId)
+      if (!vehiculo) {
+        return res.status(404).json({ error: "Vehículo no encontrado o no autorizado" })
+      }
+      res.json(vehiculo)
     } catch (error) {
-      console.log("[v0] Error in obtenerMisVehiculos:", error)
-      res.status(500).json({ error: "Error al obtener sus vehículos" })
+      res.status(500).json({ error: "Error al obtener el detalle del vehículo" })
     }
   },
 
-  async editarMiVehiculo(req, res) {
+  async editarVehiculoCliente(req, res) {
     try {
       const vehiculoId = req.params.id
-      const usuarioId = req.user.id
+      const clienteId = req.user.id
 
-      // Verify the vehicle belongs to the authenticated user
-      const vehiculoExistente = await VehiculoService.verificarPropietario(vehiculoId, usuarioId)
+      // Verificar que el vehículo pertenece al cliente autenticado
+      const vehiculoExistente = await VehiculoService.verificarPropietario(vehiculoId, clienteId)
       if (!vehiculoExistente) {
         return res.status(404).json({ error: "Vehículo no encontrado o no autorizado" })
       }
 
-      await VehiculoService.editarMiVehiculo(vehiculoId, req.body, usuarioId)
+      await VehiculoService.editarVehiculoCliente(vehiculoId, req.body, clienteId)
       res.json({ message: "Vehículo actualizado exitosamente" })
     } catch (error) {
       res.status(500).json({ error: "Error al actualizar el vehículo" })

@@ -55,17 +55,17 @@ const VehiculoModel = {
     await db.query("UPDATE vehiculo SET estado = ? WHERE id = ?", [estado, id])
   },
 
-  findByUsuarioId: async (clienteId) => {
+  findByIdAndClienteId: async (vehiculoId, clienteId) => {
     const [rows] = await db.query(
-      `SELECT v.*, r.nombre AS referencia_nombre, m.nombre AS marca_nombre 
+      `SELECT v.*, r.nombre AS referencia_nombre, m.nombre AS marca_nombre, c.nombre AS cliente_nombre, c.apellido AS cliente_apellido 
        FROM vehiculo v 
        JOIN referencia r ON v.referencia_id = r.id 
        JOIN marca m ON r.marca_id = m.id 
-       WHERE v.cliente_id = ? 
-       ORDER BY v.placa`,
-      [clienteId],
+       JOIN cliente c ON v.cliente_id = c.id 
+       WHERE v.id = ? AND v.cliente_id = ?`,
+      [vehiculoId, clienteId],
     )
-    return rows
+    return rows[0]
   },
 
   verifyOwnership: async (vehiculoId, clienteId) => {
