@@ -10,7 +10,7 @@ router.get("/:id", verifyToken, VehiculoController.obtener)
 router.post("/", verifyToken, authorizeRoles(1, 2), VehiculoController.crear)
 router.put("/:id", verifyToken, authorizeRoles(1, 2), VehiculoController.actualizar)
 router.put("/:id/cambiar-estado", verifyToken, authorizeRoles(1), VehiculoController.cambiarEstado)
-router.delete("/:id", verifyToken, authorizeRoles(1), VehiculoController.eliminar)
+router.delete("/:id", verifyToken, authorizeRoles(1, 4), VehiculoController.eliminar)
 
 router.get("/cliente/:clienteId", verifyToken, VehiculoController.obtenerPorCliente)
 router.post("/cliente/crear", verifyToken, VehiculoController.crearVehiculoCliente)
