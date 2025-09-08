@@ -129,13 +129,15 @@ const VentaService = {
             )
           }
 
-          const subtotal = cantidad * repuestoData.precio_venta
+          const precio_unitario = repuestoData.precio_venta
+          const subtotal = cantidad * precio_unitario
           total += subtotal
 
           await VentaPorRepuestoModel.create({
             venta_id: ventaId,
             repuesto_id,
             cantidad,
+            precio_unitario,
             subtotal,
           })
 
@@ -160,7 +162,7 @@ const VentaService = {
             repuesto_descripcion: repuestoData.descripcion,
             categoria_nombre: categoriaResult[0]?.nombre || "Sin categoría",
             cantidad,
-            precio_unitario: repuestoData.precio_venta,
+            precio_unitario,
             subtotal,
           })
         }
@@ -341,13 +343,15 @@ const VentaService = {
             )
           }
 
-          const subtotal = cantidad * repuestoData.precio_venta
+          const precio_unitario = repuestoData.precio_venta
+          const subtotal = cantidad * precio_unitario
           total += subtotal
 
           await VentaPorRepuestoModel.create({
             venta_id: id,
             repuesto_id,
             cantidad,
+            precio_unitario,
             subtotal,
           })
 
@@ -372,7 +376,7 @@ const VentaService = {
             repuesto_descripcion: repuestoData.descripcion,
             categoria_nombre: categoriaResult[0]?.nombre || "Sin categoría",
             cantidad,
-            precio_unitario: repuestoData.precio_venta,
+            precio_unitario,
             subtotal,
           })
         }

@@ -39,17 +39,22 @@ const VentaPorRepuestoModel = {
   },
 
   create: async (data) => {
-    const { venta_id, repuesto_id, cantidad, subtotal } = data
+    const { venta_id, repuesto_id, cantidad, precio_unitario, subtotal } = data
     const [result] = await db.query(
-      "INSERT INTO venta_por_repuesto (venta_id, repuesto_id, cantidad, subtotal) VALUES (?, ?, ?, ?)",
-      [venta_id, repuesto_id, cantidad, subtotal],
+      "INSERT INTO venta_por_repuesto (venta_id, repuesto_id, cantidad, precio_unitario, subtotal) VALUES (?, ?, ?, ?, ?)",
+      [venta_id, repuesto_id, cantidad, precio_unitario, subtotal],
     )
     return result.insertId
   },
 
   update: async (id, data) => {
-    const { cantidad, subtotal } = data
-    await db.query("UPDATE venta_por_repuesto SET cantidad = ?, subtotal = ? WHERE id = ?", [cantidad, subtotal, id])
+    const { cantidad, precio_unitario, subtotal } = data
+    await db.query("UPDATE venta_por_repuesto SET cantidad = ?, precio_unitario = ?, subtotal = ? WHERE id = ?", [
+      cantidad,
+      precio_unitario,
+      subtotal,
+      id,
+    ])
   },
 
   delete: async (id) => {
