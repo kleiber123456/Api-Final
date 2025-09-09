@@ -71,6 +71,11 @@ app.get("/", (req, res) => {
       editarMiVehiculo: "/api/vehiculos/cliente/editar/:id (PUT) - Requiere autenticación",
       detalleMiVehiculo: "/api/vehiculos/cliente/detalle/:id (GET) - Requiere autenticación",
 
+      // Endpoints de citas para clientes autenticados
+      misCitas: "/api/citas/cliente/mis-citas (GET) - Requiere autenticación",
+      crearMiCita: "/api/citas/cliente/crear (POST) - Requiere autenticación",
+      editarMiCita: "/api/citas/cliente/editar/:id (PUT) - Requiere autenticación",
+
       // Cambios de estado
       cambiarEstadoUsuario: "/api/usuarios/:id/cambiar-estado (PUT)",
       cambiarEstadoRol: "/api/roles/:id/cambiar-estado (PUT)",
@@ -145,7 +150,6 @@ app.get("/", (req, res) => {
 
       // CITAS - Sistema actualizado con historial
       citas: "/api/citas (GET/POST)",
-      citasPorCliente: "/api/citas/cliente/:clienteId (GET)",
       citasPorMecanico: "/api/citas/mecanico/:mecanicoId (GET)",
       citasPorFecha: "/api/citas/fecha/:fecha (GET)",
       citasPorEstado: "/api/citas/estado/:estadoId (GET)",
@@ -211,6 +215,25 @@ app.get("/", (req, res) => {
           año: 2020,
           color: "Rojo",
           kilometraje: 50000,
+        },
+      },
+      gestionCitasCliente: {
+        descripcion: "Gestión de citas por cliente autenticado (usa token)",
+        endpoints: {
+          listar: "GET /api/citas/cliente/mis-citas",
+          crear: "POST /api/citas/cliente/crear",
+          editar: "PUT /api/citas/cliente/editar/:id",
+        },
+        ejemploCrear: {
+          fecha: "2024-12-15",
+          hora: "14:00:00",
+          vehiculo_id: 1,
+          mecanico_id: 2,
+          observaciones: "Revisión de frenos.",
+        },
+        ejemploEditar: {
+          fecha: "2024-12-16",
+          hora: "09:00:00",
         },
       },
       ventaSinCita: {

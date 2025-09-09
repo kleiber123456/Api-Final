@@ -133,7 +133,47 @@ const CitaController = {
       const historial = await HistorialCitaModel.obtenerPorVehiculo(req.params.vehiculoId)
       res.json(historial)
     } catch (error) {
-      res.status(500).json({ error: "Error al obtener el historial del vehículo" })
+          res.status(500).json({ error: "Error al obtener el historial del vehículo" })
+    }
+  },
+
+  // --- NUEVOS MÉTODOS PARA CLIENTES AUTENTICADOS ---
+
+  async listarMisCitas(req, res) {
+    try {
+      // El ID del cliente se obtiene del token a través del middleware de autenticación
+      const clienteId = req.user.id
+      const citas = await CitaService.obtenerPorCliente(clienteId)
+      res.json(citas)
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener las citas del cliente" })
+    }
+  },
+
+  async crearMiCita(req, res) {
+    try {
+      const clienteId = req.user.id
+      const id = await CitaService.crearCitaCliente(req.body, clienteId)
+      res.status(201).json({ message: "Cita creada exitosamente", id })
+    } catch (error) {
+      res.status(400).json({ error: error.message })
+    }
+  },
+
+  async actualizarMiCita(req, res) {
+    try {
+      const citaId = req.params.id
+      const clienteId = req.user.id
+
+      await CitaService.actualizarCitaCliente(citaId, req.body, clienteId)
+      res.json({ message: "Cita actualizada exitosamente" })
+    } catch (error) {
+      // Diferenciar errores de autorización/reglas de negocio de errores del servidor
+      if (error.message.includes("autorizado") || error.message.includes("antelación") || error.message.includes("encontrada")) {
+        return res.status(403).json({ error: error.message })
+      }
+      // Errores de validación (campos requeridos, disponibilidad, etc.)
+      res.status(400).json({ error: error.message })
     }
   },
 }
