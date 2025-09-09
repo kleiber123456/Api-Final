@@ -3,11 +3,11 @@ const router = express.Router()
 const RepuestoController = require("../controllers/repuestoController")
 const { verifyToken, authorizeRoles } = require("../middlewares/authMiddleware")
 
-// Obtener todos los repuestos (requiere token)
-router.get("/", verifyToken, RepuestoController.listar)
+// Obtener todos los repuestos (Admin, Empleado, Mecánico)
+router.get("/", verifyToken, authorizeRoles(1, 2, 3), RepuestoController.listar)
 
-// Obtener un repuesto por ID (requiere token)
-router.get("/:id", verifyToken, RepuestoController.obtener)
+// Obtener un repuesto por ID (Admin, Empleado, Mecánico)
+router.get("/:id", verifyToken, authorizeRoles(1, 2, 3), RepuestoController.obtener)
 
 // Crear un nuevo repuesto (solo rol Administrador: id = 1)
 router.post("/", verifyToken, authorizeRoles(1), RepuestoController.crear)

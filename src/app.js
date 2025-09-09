@@ -76,6 +76,9 @@ app.get("/", (req, res) => {
       crearMiCita: "/api/citas/cliente/crear (POST) - Requiere autenticación",
       editarMiCita: "/api/citas/cliente/editar/:id (PUT) - Requiere autenticación",
 
+      // Endpoints de citas para mecánicos autenticados
+      misCitasMecanico: "/api/citas/mecanico/mis-citas (GET) - Requiere autenticación como mecánico",
+
       // Cambios de estado
       cambiarEstadoUsuario: "/api/usuarios/:id/cambiar-estado (PUT)",
       cambiarEstadoRol: "/api/roles/:id/cambiar-estado (PUT)",
@@ -89,7 +92,7 @@ app.get("/", (req, res) => {
       servicios: "/api/servicios",
       roles: "/api/roles",
       usuarios: "/api/usuarios",
-      repuestos: "/api/repuestos",
+      repuestos: "/api/repuestos (GET para Admin/Empleado/Mecánico)",
       categoriasRepuestos: "/api/categorias-repuestos",
       clientes: "/api/clientes",
       marcas: "/api/marcas",

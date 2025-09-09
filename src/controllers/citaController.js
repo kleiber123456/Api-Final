@@ -137,6 +137,17 @@ const CitaController = {
     }
   },
 
+  async listarMisCitasMecanico(req, res) {
+    try {
+      // El ID del mecánico se obtiene del token a través del middleware
+      const mecanicoId = req.user.id
+      const citas = await CitaService.obtenerPorMecanico(mecanicoId)
+      res.json(citas)
+    } catch (error) {
+      res.status(500).json({ error: "Error al obtener las citas del mecánico" })
+    }
+  },
+
   // --- NUEVOS MÉTODOS PARA CLIENTES AUTENTICADOS ---
 
   async listarMisCitas(req, res) {

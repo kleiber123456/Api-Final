@@ -10,6 +10,10 @@ router.get("/cliente/mis-citas", verifyToken, CitaController.listarMisCitas)
 router.post("/cliente/crear", verifyToken, CitaController.crearMiCita)
 router.put("/cliente/editar/:id", verifyToken, CitaController.actualizarMiCita)
 
+// --- Rutas para Mecánicos (protegidas por token, usan el ID del token) ---
+// Rol de Mecánico es 3
+router.get("/mecanico/mis-citas", verifyToken, authorizeRoles(3), CitaController.listarMisCitasMecanico)
+
 // Rutas públicas (requieren autenticación pero no roles específicos)
 router.get("/", verifyToken, CitaController.listar)
 router.get("/mecanico/:mecanicoId", verifyToken, CitaController.obtenerPorMecanico)
