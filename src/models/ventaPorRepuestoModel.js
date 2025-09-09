@@ -6,14 +6,14 @@ const VentaPorRepuestoModel = {
     const [rows] = await db.query(
       `
       SELECT vpr.*, 
-             r.nombre AS repuesto_nombre,
-             r.descripcion AS repuesto_descripcion,
-             r.precio_venta AS repuesto_precio,
-             cr.nombre AS categoria_nombre
-      FROM venta_por_repuesto vpr
-      JOIN repuesto r ON vpr.repuesto_id = r.id
-      JOIN categoria_repuesto cr ON r.categoria_repuesto_id = cr.id
-      WHERE vpr.venta_id = ?
+       r.nombre AS repuesto_nombre,
+       r.descripcion AS repuesto_descripcion,
+       vpr.precio_unitario AS repuesto_precio,
+       cr.nombre AS categoria_nombre
+       FROM venta_por_repuesto vpr
+       JOIN repuesto r ON vpr.repuesto_id = r.id
+       JOIN categoria_repuesto cr ON r.categoria_repuesto_id = cr.id
+       WHERE vpr.venta_id = ?
     `,
       [ventaId],
     )
