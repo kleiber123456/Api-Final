@@ -28,7 +28,8 @@ const VentaService = {
 
   obtenerPorEstado: (estadoId) => VentaModel.findByEstado(estadoId),
 
-  obtenerPorRangoFechas: (fechaInicio, fechaFin) => VentaModel.findByDateRange(fechaInicio, fechaFin),
+  obtenerPorRangoFechas: (fechaInicio, fechaFin) =>
+    VentaModel.findByDateRange(fechaInicio, fechaFin),
 
   crear: async (data) => {
     const connection = await db.getConnection()
@@ -555,6 +556,25 @@ const VentaService = {
       }
 
       const estadoAnterior = venta.estado_venta_id
+
+      // Lógica para revertir el stock si la venta se cancela
+      if (estadoId == 3 && estadoAnterior !== 3) {
+        const repuestosActuales = await VentaPorRepuestoModel.findByVenta(id)
+
+        for (const repuestoActual of repuestosActuales) {
+          const repuestoData = await RepuestoModel.findById(repuestoActual.repuesto_id)
+          if (repuestoData) {
+            const nuevaCantidad = repuestoData.cantidad + repuestoActual.cantidad
+            const nuevoTotal = nuevaCantidad * repuestoData.precio_venta
+
+            await RepuestoModel.update(repuestoActual.repuesto_id, {
+              ...repuestoData,
+              cantidad: nuevaCantidad,
+              total: nuevoTotal,
+            })
+          }
+        }
+      }
 
       await VentaModel.cambiarEstado(id, estadoId)
 
