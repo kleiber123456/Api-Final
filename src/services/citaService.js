@@ -170,7 +170,8 @@ const CitaService = {
     if (!cita) {
       throw new Error("Cita no encontrada.")
     }
-    if (cita.cliente_id !== clienteId) {
+    // Aseguramos que la comparación sea numérica
+    if (Number(cita.cliente_id) !== Number(clienteId)) {
       throw new Error("No está autorizado para modificar esta cita.")
     }
 
@@ -183,9 +184,29 @@ const CitaService = {
       throw new Error("No se puede modificar la cita con menos de 2 horas de antelación.")
     }
 
-    // 3. Preparamos los datos y reutilizamos la lógica de validación del método `actualizar` general.
-    const datosParaActualizar = { ...cita, ...data, cliente_id: clienteId, estado_cita_id: cita.estado_cita_id }
-    return CitaService.actualizar(citaId, datosParaActualizar)
+    // 3. El cliente solo puede modificar ciertos campos. Creamos un objeto con los datos permitidos.
+    const datosCliente = {
+      fecha: data.fecha || cita.fecha,
+      hora: data.hora || cita.hora,
+      mecanico_id: data.mecanico_id || cita.mecanico_id,
+      observaciones: data.observaciones || cita.observaciones,
+    }
+
+    // 4. Validar la disponibilidad si se cambia la fecha, hora o mecánico.
+    if (data.fecha || data.hora || data.mecanico_id) {
+      const disponible = await CitaModel.verificarDisponibilidadMecanico(datosCliente.mecanico_id, datosCliente.fecha, datosCliente.hora, citaId)
+      if (!disponible) {
+        throw new Error("El mecánico ya tiene una cita programada en esta fecha y hora")
+      }
+      const mecanicosDisponibles = await HorarioModel.verificarDisponibilidad(datosCliente.fecha, datosCliente.hora)
+      const mecanicoDisponible = mecanicosDisponibles.some((m) => m.id === Number.parseInt(datosCliente.mecanico_id))
+      if (!mecanicoDisponible) {
+        throw new Error("El mecánico no está disponible en esta fecha y hora debido a una novedad en su horario")
+      }
+    }
+
+    // 5. Actualizar directamente en el modelo para evitar las validaciones de admin.
+    return CitaModel.update(citaId, datosCliente)
   },
 }
 

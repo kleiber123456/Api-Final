@@ -35,6 +35,7 @@ const CitaModel = {
              ec.nombre AS estado_nombre,
              v.placa AS vehiculo_placa,
              v.color AS vehiculo_color,
+             v.cliente_id AS cliente_id,
              cl.nombre AS cliente_nombre,
              cl.apellido AS cliente_apellido,
              cl.documento AS cliente_documento,

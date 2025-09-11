@@ -174,9 +174,16 @@ const CitaController = {
   async actualizarMiCita(req, res) {
     try {
       const citaId = req.params.id
-      const clienteId = req.user.id
+      const { id: userId, rol_id: userRol } = req.user // Asumiendo que el rol viene en el token
 
-      await CitaService.actualizarCitaCliente(citaId, req.body, clienteId)
+      // Si es admin (rol 1), puede usar la lógica de actualización general
+      if (userRol === 1) {
+        await CitaService.actualizar(citaId, req.body)
+        return res.json({ message: "Cita actualizada por administrador" })
+      }
+
+      // Lógica para clientes
+      await CitaService.actualizarCitaCliente(citaId, req.body, userId)
       res.json({ message: "Cita actualizada exitosamente" })
     } catch (error) {
       // Diferenciar errores de autorización/reglas de negocio de errores del servidor
