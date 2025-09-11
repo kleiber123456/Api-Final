@@ -169,6 +169,19 @@ const VentaController = {
       res.status(500).json({ error: "Error al obtener el historial del vehículo" })
     }
   },
+
+  async obtenerMisVentas(req, res) {
+    try {
+      // El ID del cliente se obtiene del token de autenticación
+      const clienteId = req.user.id;
+      const ventas = await VentaService.obtenerPorCliente(clienteId);
+      res.json(ventas);
+    } catch (error) {
+      console.error("Error al obtener mis ventas:", error);
+      res.status(500).json({ error: "Error al obtener las ventas del cliente" });
+    }
+}
+
 }
 
 module.exports = VentaController

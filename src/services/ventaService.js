@@ -24,7 +24,17 @@ const VentaService = {
     return venta
   },
 
-  obtenerPorCliente: (clienteId) => VentaModel.findByCliente(clienteId),
+  obtenerPorCliente: async (clienteId) => {
+    const ventas = await VentaModel.findByCliente(clienteId);
+    if (ventas && ventas.length > 0) {
+      for (const venta of ventas) {
+        venta.servicios = await VentaPorServicioModel.findByVenta(venta.id);
+        venta.repuestos = await VentaPorRepuestoModel.findByVenta(venta.id);
+        venta.cita = await VentaCitaModel.obtenerCitaPorVenta(venta.id);
+      }
+    }
+    return ventas;
+  },
 
   obtenerPorEstado: (estadoId) => VentaModel.findByEstado(estadoId),
 

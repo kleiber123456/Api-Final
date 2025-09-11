@@ -6,6 +6,8 @@ const { verifyToken, authorizeRoles } = require("../middlewares/authMiddleware")
 
 // Rutas de consulta (GET) - solo requieren autenticación
 router.get("/", verifyToken, VentaController.listar)
+// Nueva ruta para que el cliente vea sus propias ventas
+router.get("/mis-ventas", verifyToken, authorizeRoles(4), VentaController.obtenerMisVentas)
 router.get("/cliente/:clienteId", verifyToken, VentaController.obtenerPorCliente)
 router.get("/estado/:estadoId", verifyToken, VentaController.obtenerPorEstado)
 router.get("/rango", verifyToken, VentaController.obtenerPorRangoFechas)
