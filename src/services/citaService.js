@@ -92,6 +92,10 @@ const CitaService = {
         throw new Error("El mecánico no está disponible en esta fecha y hora debido a una novedad en su horario")
       }
     }
+    
+    if (data.fecha) {
+      data.fecha = new Date(data.fecha).toISOString().split("T")[0]
+    }
 
     return CitaModel.update(id, data)
   },
@@ -193,7 +197,7 @@ const CitaService = {
     }
 
     // 4. Validar la disponibilidad si se cambia la fecha, hora o mecánico.
-    if (data.fecha || data.hora || data.mecanico_id) {
+        if (data.fecha || data.hora || data.mecanico_id) {
       const disponible = await CitaModel.verificarDisponibilidadMecanico(datosCliente.mecanico_id, datosCliente.fecha, datosCliente.hora, citaId)
       if (!disponible) {
         throw new Error("El mecánico ya tiene una cita programada en esta fecha y hora")
@@ -203,6 +207,10 @@ const CitaService = {
       if (!mecanicoDisponible) {
         throw new Error("El mecánico no está disponible en esta fecha y hora debido a una novedad en su horario")
       }
+    }
+    
+    if (datosCliente.fecha) {
+      datosCliente.fecha = new Date(datosCliente.fecha).toISOString().split("T")[0]
     }
 
     // 5. Actualizar directamente en el modelo para evitar las validaciones de admin.

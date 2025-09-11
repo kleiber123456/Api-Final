@@ -182,11 +182,16 @@ const CitaModel = {
   },
 
   update: async (id, data) => {
-    const { fecha, hora, observaciones, estado_cita_id, vehiculo_id, mecanico_id } = data
-    await db.query(
-      "UPDATE cita SET fecha = ?, hora = ?, observaciones = ?, estado_cita_id = ?, vehiculo_id = ?, mecanico_id = ? WHERE id = ?",
-      [fecha, hora, observaciones, estado_cita_id, vehiculo_id, mecanico_id, id],
-    )
+    const fields = Object.keys(data)
+    const setClause = fields.map((field) => `${field} = ?`).join(", ")
+    const values = [...Object.values(data), id]
+
+    if (fields.length === 0) {
+      return
+    }
+
+    const query = `UPDATE cita SET ${setClause} WHERE id = ?`
+    await db.query(query, values)
   },
 
   delete: async (id) => {
