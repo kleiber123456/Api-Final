@@ -145,7 +145,7 @@ app.get("/", (req, res) => {
       ventasPorRango: "/api/ventas/rango?fechaInicio=&fechaFin= (GET)",
       cambiarEstadoVenta: "/api/ventas/:id/cambiar-estado (PUT)",
       vincularVentaCita: "/api/ventas/:id/vincular-cita (POST)",
-
+      citasPorCliente: "/api/citas/cliente/:clienteId (GET)",
       // HISTORIAL DE VENTAS
       historialVenta: "/api/ventas/:id/historial (GET)",
       historialVentasPorCliente: "/api/ventas/historial/cliente/:clienteId (GET)",

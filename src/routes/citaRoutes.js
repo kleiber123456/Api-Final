@@ -7,6 +7,7 @@ const { verifyToken, authorizeRoles } = require("../middlewares/authMiddleware")
 
 // --- Rutas para Clientes (protegidas por token, usan el ID del token) ---
 router.get("/cliente/mis-citas", verifyToken, CitaController.listarMisCitas)
+router.get("/cliente/:clienteId", verifyToken, CitaController.obtenerPorCliente)
 router.post("/cliente/crear", verifyToken, CitaController.crearMiCita)
 router.put("/cliente/editar/:id", verifyToken, CitaController.actualizarMiCita)
 
