@@ -194,6 +194,21 @@ const CitaController = {
       res.status(400).json({ error: error.message })
     }
   },
+
+  async cancelarMiCita(req, res) {
+    try {
+      const citaId = req.params.id
+      const clienteId = req.user.id
+
+      await CitaService.cancelarCitaCliente(citaId, clienteId)
+      res.json({ message: "Cita cancelada exitosamente" })
+    } catch (error) {
+      if (error.message.includes("autorizado") || error.message.includes("antelación") || error.message.includes("encontrada")) {
+        return res.status(403).json({ error: error.message })
+      }
+      res.status(400).json({ error: error.message })
+    }
+  },
 }
 
 module.exports = CitaController

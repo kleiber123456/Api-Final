@@ -208,6 +208,37 @@ const CitaService = {
     // 5. Actualizar directamente en el modelo para evitar las validaciones de admin.
     return CitaModel.update(citaId, datosCliente)
   },
+
+  /**
+   * Cancela una cita existente de un cliente autenticado.
+   * No se puede cancelar con menos de 2 horas de antelación.
+   * @param {number} citaId - El ID de la cita a cancelar.
+   * @param {number} clienteId - El ID del cliente autenticado para verificación.
+   */
+  cancelarCitaCliente: async (citaId, clienteId) => {
+    const cita = await CitaModel.findById(citaId)
+
+    // 1. Verificar que la cita exista y pertenezca al cliente.
+    if (!cita) {
+      throw new Error("Cita no encontrada.")
+    }
+    if (Number(cita.cliente_id) !== Number(clienteId)) {
+      throw new Error("No está autorizado para cancelar esta cita.")
+    }
+
+    // 2. Regla de negocio: No se puede cancelar con menos de 2 horas de antelación.
+    const ahora = new Date()
+    const fechaCita = new Date(`${new Date(cita.fecha).toISOString().split("T")[0]}T${cita.hora}`)
+    const diffHoras = (fechaCita - ahora) / (1000 * 60 * 60)
+
+    if (diffHoras < 2) {
+      throw new Error("No se puede cancelar la cita con menos de 2 horas de antelación.")
+    }
+
+    // 3. Cambiar el estado a "Cancelada por Cliente" (asumimos ID 4)
+    // El estado 3 es 'Cancelada' en la base de datos
+    return CitaModel.cambiarEstado(citaId, 4)
+  },
 }
 
 module.exports = CitaService
