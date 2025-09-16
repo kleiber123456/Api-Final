@@ -91,6 +91,14 @@ const CitaModel = {
     return rows
   },
 
+  findActiveByCliente: async (clienteId) => {
+    const [rows] = await db.query(
+      "SELECT * FROM cita c JOIN vehiculo v ON c.vehiculo_id = v.id WHERE v.cliente_id = ? AND c.estado_cita_id IN (1, 2)",
+      [clienteId],
+    )
+    return rows
+  },
+
   findByMecanico: async (mecanicoId) => {
     const [rows] = await db.query(
       `
@@ -115,6 +123,14 @@ const CitaModel = {
       WHERE c.mecanico_id = ?
       ORDER BY c.fecha DESC, c.hora
     `,
+      [mecanicoId],
+    )
+    return rows
+  },
+
+  findActiveByMecanico: async (mecanicoId) => {
+    const [rows] = await db.query(
+      "SELECT * FROM cita WHERE mecanico_id = ? AND estado_cita_id IN (1, 2)",
       [mecanicoId],
     )
     return rows
