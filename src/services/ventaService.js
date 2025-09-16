@@ -41,12 +41,12 @@ const VentaService = {
   obtenerPorRangoFechas: (fechaInicio, fechaFin) =>
     VentaModel.findByDateRange(fechaInicio, fechaFin),
 
-  crear: async (data) => {
+    crear: async (data) => {
     const connection = await db.getConnection()
     await connection.beginTransaction()
 
     try {
-      const { cliente_id, estado_venta_id, mecanico_id, servicios, repuestos, cita_id } = data
+      let { cliente_id, estado_venta_id, mecanico_id, servicios, repuestos, cita_id } = data
 
       // Validaciones básicas
       if (!cliente_id || !estado_venta_id) {
@@ -78,7 +78,7 @@ const VentaService = {
       const ventaId = await VentaModel.create({
         cliente_id,
         estado_venta_id,
-        mecanico_id: mecanico_id || null,
+        mecanico_id: mecanico_id || (citaData ? citaData.mecanico_id : null),
         fecha: new Date(),
         total: 0,
       })
@@ -86,6 +86,17 @@ const VentaService = {
       let total = 0
       const serviciosDetalle = []
       const repuestosDetalle = []
+
+      // Si la cita tiene un servicio, añadirlo a la lista de servicios de la venta
+      if (citaData && citaData.servicio_id) {
+        if (!servicios) {
+          servicios = []
+        }
+        // Evitar duplicados si ya se envió en el cuerpo de la petición
+        if (!servicios.some((s) => s.servicio_id === citaData.servicio_id)) {
+          servicios.push({ servicio_id: citaData.servicio_id })
+        }
+      }
 
       // Procesar servicios
       if (servicios && servicios.length > 0) {
@@ -183,7 +194,7 @@ const VentaService = {
       await VentaModel.update(ventaId, {
         cliente_id,
         estado_venta_id,
-        mecanico_id: mecanico_id || null,
+        mecanico_id: mecanico_id || (citaData ? citaData.mecanico_id : null),
         fecha: new Date(),
         total,
       })
@@ -227,7 +238,7 @@ const VentaService = {
         cita_id: cita_id || null,
         cliente_id,
         vehiculo_id: null,
-        mecanico_id: mecanico_id || null,
+        mecanico_id: mecanico_id || (citaData ? citaData.mecanico_id : null),
         fecha_venta: new Date(),
         estado_anterior: null,
         estado_nuevo: estado_venta_id == 1 ? "Pendiente" : estado_venta_id == 2 ? "Pagada" : "Cancelada",

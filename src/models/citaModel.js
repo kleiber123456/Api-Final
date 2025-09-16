@@ -15,7 +15,8 @@ const CitaModel = {
              m.nombre AS mecanico_nombre,
              m.apellido AS mecanico_apellido,
              r.nombre AS referencia_nombre,
-             ma.nombre AS marca_nombre
+             ma.nombre AS marca_nombre,
+             s.nombre AS servicio_nombre
       FROM cita c
       JOIN estado_cita ec ON c.estado_cita_id = ec.id
       JOIN vehiculo v ON c.vehiculo_id = v.id
@@ -23,6 +24,7 @@ const CitaModel = {
       JOIN mecanico m ON c.mecanico_id = m.id
       JOIN referencia r ON v.referencia_id = r.id
       JOIN marca ma ON r.marca_id = ma.id
+      LEFT JOIN servicio s ON c.servicio_id = s.id
       ORDER BY c.fecha DESC, c.hora
     `)
     return rows
@@ -45,7 +47,8 @@ const CitaModel = {
              m.nombre AS mecanico_nombre,
              m.apellido AS mecanico_apellido,
              r.nombre AS referencia_nombre,
-             ma.nombre AS marca_nombre
+             ma.nombre AS marca_nombre,
+             s.nombre AS servicio_nombre
       FROM cita c
       JOIN estado_cita ec ON c.estado_cita_id = ec.id
       JOIN vehiculo v ON c.vehiculo_id = v.id
@@ -53,6 +56,7 @@ const CitaModel = {
       JOIN mecanico m ON c.mecanico_id = m.id
       JOIN referencia r ON v.referencia_id = r.id
       JOIN marca ma ON r.marca_id = ma.id
+      LEFT JOIN servicio s ON c.servicio_id = s.id
       WHERE c.id = ?
     `,
       [id],
@@ -70,14 +74,16 @@ const CitaModel = {
              m.nombre AS mecanico_nombre,
              m.apellido AS mecanico_apellido,
              r.nombre AS referencia_nombre,
-             ma.nombre AS marca_nombre
+             ma.nombre AS marca_nombre,
+             s.nombre AS servicio_nombre
       FROM cita c
       JOIN estado_cita ec ON c.estado_cita_id = ec.id
       JOIN vehiculo v ON c.vehiculo_id = v.id
       JOIN mecanico m ON c.mecanico_id = m.id
       JOIN referencia r ON v.referencia_id = r.id
       JOIN marca ma ON r.marca_id = ma.id
-      WHERE v.cliente_id = ?
+      LEFT JOIN servicio s ON c.servicio_id = s.id
+      WHERE v.cliente_id = ? AND c.estado_cita_id = 1
       ORDER BY c.fecha DESC, c.hora
     `,
       [clienteId],
@@ -97,13 +103,15 @@ const CitaModel = {
              cl.documento AS cliente_documento,
              cl.tipo_documento AS cliente_tipo_documento,
              r.nombre AS referencia_nombre,
-             ma.nombre AS marca_nombre
+             ma.nombre AS marca_nombre,
+             s.nombre AS servicio_nombre
       FROM cita c
       JOIN estado_cita ec ON c.estado_cita_id = ec.id
       JOIN vehiculo v ON c.vehiculo_id = v.id
       JOIN cliente cl ON v.cliente_id = cl.id
       JOIN referencia r ON v.referencia_id = r.id
       JOIN marca ma ON r.marca_id = ma.id
+      LEFT JOIN servicio s ON c.servicio_id = s.id
       WHERE c.mecanico_id = ?
       ORDER BY c.fecha DESC, c.hora
     `,
@@ -126,7 +134,8 @@ const CitaModel = {
              m.nombre AS mecanico_nombre,
              m.apellido AS mecanico_apellido,
              r.nombre AS referencia_nombre,
-             ma.nombre AS marca_nombre
+             ma.nombre AS marca_nombre,
+             s.nombre AS servicio_nombre
       FROM cita c
       JOIN estado_cita ec ON c.estado_cita_id = ec.id
       JOIN vehiculo v ON c.vehiculo_id = v.id
@@ -134,6 +143,7 @@ const CitaModel = {
       JOIN mecanico m ON c.mecanico_id = m.id
       JOIN referencia r ON v.referencia_id = r.id
       JOIN marca ma ON r.marca_id = ma.id
+      LEFT JOIN servicio s ON c.servicio_id = s.id
       WHERE c.fecha = ?
       ORDER BY c.hora
     `,
@@ -156,7 +166,8 @@ const CitaModel = {
              m.nombre AS mecanico_nombre,
              m.apellido AS mecanico_apellido,
              r.nombre AS referencia_nombre,
-             ma.nombre AS marca_nombre
+             ma.nombre AS marca_nombre,
+             s.nombre AS servicio_nombre
       FROM cita c
       JOIN estado_cita ec ON c.estado_cita_id = ec.id
       JOIN vehiculo v ON c.vehiculo_id = v.id
@@ -164,6 +175,7 @@ const CitaModel = {
       JOIN mecanico m ON c.mecanico_id = m.id
       JOIN referencia r ON v.referencia_id = r.id
       JOIN marca ma ON r.marca_id = ma.id
+      LEFT JOIN servicio s ON c.servicio_id = s.id
       WHERE c.estado_cita_id = ?
       ORDER BY c.fecha DESC, c.hora
     `,
@@ -173,10 +185,10 @@ const CitaModel = {
   },
 
   create: async (data) => {
-    const { fecha, hora, observaciones, estado_cita_id, vehiculo_id, mecanico_id } = data
+    const { fecha, hora, observaciones, estado_cita_id, vehiculo_id, mecanico_id, servicio_id, subtotal } = data
     const [result] = await db.query(
-      "INSERT INTO cita (fecha, hora, observaciones, estado_cita_id, vehiculo_id, mecanico_id) VALUES (?, ?, ?, ?, ?, ?)",
-      [fecha, hora, observaciones, estado_cita_id, vehiculo_id, mecanico_id],
+      "INSERT INTO cita (fecha, hora, observaciones, estado_cita_id, vehiculo_id, mecanico_id, servicio_id, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [fecha, hora, observaciones, estado_cita_id, vehiculo_id, mecanico_id, servicio_id || null, subtotal || null],
     )
     return result.insertId
   },
@@ -222,5 +234,8 @@ const CitaModel = {
     return rows[0].total === 0 // Retorna true si está disponible (no hay citas)
   },
 }
+
+module.exports = CitaModel
+
 
 module.exports = CitaModel

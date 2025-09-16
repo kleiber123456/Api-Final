@@ -1,6 +1,7 @@
 // src/services/citaService.js
 const CitaModel = require("../models/citaModel")
 const HorarioModel = require("../models/horarioModel")
+const ServicioModel = require("../models/servicioModel")
 
 const CitaService = {
   listar: () => CitaModel.findAll(),
@@ -46,6 +47,15 @@ const CitaService = {
 
     if (!mecanicoDisponible) {
       throw new Error("El mecánico no está disponible en esta fecha y hora debido a una novedad en su horario")
+    }
+
+    if (data.servicio_id) {
+      const servicio = await ServicioModel.findById(data.servicio_id)
+      if (servicio) {
+        data.subtotal = servicio.precio
+      } else {
+        throw new Error(`Servicio con ID ${data.servicio_id} no encontrado`)
+      }
     }
 
     return CitaModel.create(data)
@@ -95,6 +105,17 @@ const CitaService = {
     
     if (data.fecha) {
       data.fecha = new Date(data.fecha).toISOString().split("T")[0]
+    }
+
+    if (data.servicio_id) {
+      const servicio = await ServicioModel.findById(data.servicio_id)
+      if (servicio) {
+        data.subtotal = servicio.precio
+      } else {
+        throw new Error(`Servicio con ID ${data.servicio_id} no encontrado`)
+      }
+    } else if (data.servicio_id === null) {
+      data.subtotal = null
     }
 
     return CitaModel.update(id, data)
@@ -157,6 +178,15 @@ const CitaService = {
       throw new Error("El mecánico no está disponible en esta fecha y hora debido a una novedad en su horario")
     }
 
+    if (citaData.servicio_id) {
+      const servicio = await ServicioModel.findById(citaData.servicio_id)
+      if (servicio) {
+        citaData.subtotal = servicio.precio
+      } else {
+        throw new Error(`Servicio con ID ${citaData.servicio_id} no encontrado`)
+      }
+    }
+
     return CitaModel.create(citaData)
   },
 
@@ -194,6 +224,7 @@ const CitaService = {
       hora: data.hora || cita.hora,
       mecanico_id: data.mecanico_id || cita.mecanico_id,
       observaciones: data.observaciones || cita.observaciones,
+      servicio_id: data.servicio_id !== undefined ? data.servicio_id : cita.servicio_id,
     }
 
     // 4. Validar la disponibilidad si se cambia la fecha, hora o mecánico.
@@ -211,6 +242,17 @@ const CitaService = {
     
     if (datosCliente.fecha) {
       datosCliente.fecha = new Date(datosCliente.fecha).toISOString().split("T")[0]
+    }
+
+    if (datosCliente.servicio_id) {
+      const servicio = await ServicioModel.findById(datosCliente.servicio_id)
+      if (servicio) {
+        datosCliente.subtotal = servicio.precio
+      } else {
+        throw new Error(`Servicio con ID ${datosCliente.servicio_id} no encontrado`)
+      }
+    } else if (datosCliente.servicio_id === null) {
+      datosCliente.subtotal = null
     }
 
     // 5. Actualizar directamente en el modelo para evitar las validaciones de admin.
