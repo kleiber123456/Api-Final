@@ -1,5 +1,6 @@
-// src/services/clienteService.js
 const ClienteModel = require("../models/clienteModel")
+const VehiculoModel = require("../models/vehiculoModel") // Importar VehiculoModel
+const CitaModel = require("../models/citaModel") // Importar CitaModel
 
 const ClienteService = {
   listar: () => ClienteModel.findAll(),
@@ -57,6 +58,17 @@ const ClienteService = {
     if (!cliente) throw new Error("Cliente no encontrado")
 
     const nuevoEstado = cliente.estado === "Activo" ? "Inactivo" : "Activo"
+
+    // Si se intenta desactivar, verificar vehículos y citas asociadas
+    if (nuevoEstado === "Inactivo") {
+      const vehiculosAsociados = await VehiculoModel.findByClienteId(id)
+      const citasAsociadas = await CitaModel.findActiveByCliente(id)
+
+      if (vehiculosAsociados.length > 0 || citasAsociadas.length > 0) {
+        throw new Error("El cliente tiene vehículos o citas asociadas y no puede ser desactivado.")
+      }
+    }
+
     await ClienteModel.cambiarEstado(id, nuevoEstado)
     return nuevoEstado
   },

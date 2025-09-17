@@ -1,5 +1,6 @@
 // src/services/mecanicoService.js
 const MecanicoModel = require("../models/mecanicoModel")
+const CitaModel = require("../models/citaModel") // Importar CitaModel
 
 const MecanicoService = {
   listar: () => MecanicoModel.findAll(),
@@ -75,6 +76,15 @@ const MecanicoService = {
     if (!mecanico) throw new Error("Mecánico no encontrado")
 
     const nuevoEstado = mecanico.estado === "Activo" ? "Inactivo" : "Activo"
+
+    // Si se intenta desactivar, verificar citas asociadas
+    if (nuevoEstado === "Inactivo") {
+      const citasAsociadas = await CitaModel.findActiveByMecanico(id)
+      if (citasAsociadas.length > 0) {
+        throw new Error("El mecánico tiene citas asociadas y no puede ser desactivado.")
+      }
+    }
+
     await MecanicoModel.cambiarEstado(id, nuevoEstado)
     return nuevoEstado
   },

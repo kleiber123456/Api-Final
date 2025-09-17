@@ -70,6 +70,10 @@ const UsuarioController = {
       res.json({ message: `Estado actualizado a ${nuevoEstado}` });
     } catch (error) {
       console.error(error);
+      if (error.message === "El mecánico tiene citas asociadas y no puede ser desactivado." ||
+          error.message === "El cliente tiene vehículos o citas asociadas y no puede ser desactivado.") {
+        return res.status(409).json({ message: error.message });
+      }
       res.status(500).json({ error: 'Error al cambiar el estado del usuario' });
     }
   }

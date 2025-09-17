@@ -64,6 +64,9 @@ const MecanicoController = {
       const nuevoEstado = await MecanicoService.cambiarEstado(req.params.id);
       res.json({ message: `Estado actualizado a ${nuevoEstado}` });
     } catch (error) {
+      if (error.message === "El mecánico tiene citas asociadas y no puede ser desactivado.") {
+        return res.status(409).json({ message: error.message });
+      }
       res.status(500).json({ error: "Error al cambiar el estado del mecánico" });
     }
   },

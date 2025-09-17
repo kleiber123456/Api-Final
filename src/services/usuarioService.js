@@ -1,6 +1,10 @@
 // src/services/usuarioService.js
 const bcrypt = require("bcryptjs")
 const UsuarioModel = require("../models/usuarioModel")
+const MecanicoModel = require("../models/mecanicoModel") // Importar MecanicoModel
+const ClienteModel = require("../models/clienteModel") // Importar ClienteModel
+const VehiculoModel = require("../models/vehiculoModel") // Importar VehiculoModel
+const CitaModel = require("../models/citaModel") // Importar CitaModel
 const db = require("../config/db")
 const transporter = require("../config/nodemailer")
 
@@ -115,6 +119,23 @@ const UsuarioService = {
     if (!usuario) throw new Error("Usuario no encontrado")
 
     const nuevoEstado = usuario.estado === "Activo" ? "Inactivo" : "Activo"
+
+    // Si se intenta desactivar, verificar roles y datos asociados
+    if (nuevoEstado === "Inactivo") {
+      if (usuario.rol_id === 3) { // Mecánico
+        const citasAsociadas = await CitaModel.findActiveByMecanico(id)
+        if (citasAsociadas.length > 0) {
+          throw new Error("El mecánico tiene citas asociadas y no puede ser desactivado.")
+        }
+      } else if (usuario.rol_id === 4) { // Cliente
+        const vehiculosAsociados = await VehiculoModel.findByClienteId(id)
+        const citasAsociadas = await CitaModel.findActiveByCliente(id)
+        if (vehiculosAsociados.length > 0 || citasAsociadas.length > 0) {
+          throw new Error("El cliente tiene vehículos o citas asociadas y no puede ser desactivado.")
+        }
+      }
+    }
+
     await UsuarioModel.cambiarEstado(id, nuevoEstado)
     return nuevoEstado
   },
