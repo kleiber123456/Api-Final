@@ -50,14 +50,7 @@ const CompraController = {
     }
   },
 
-  async cambiarEstado(req, res) {
-    try {
-      const nuevoEstado = await CompraService.cambiarEstado(req.params.id)
-      res.json({ message: `Estado actualizado a ${nuevoEstado}` })
-    } catch (error) {
-      res.status(500).json({ error: "Error al cambiar el estado de la compra" })
-    }
-  },
+  
 }
 
 module.exports = CompraController

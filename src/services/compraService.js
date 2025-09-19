@@ -20,40 +20,35 @@ const CompraService = {
     await connection.beginTransaction()
 
     try {
-      const { proveedor_id, detalles, estado } = data
+      const { proveedor_id, detalles, numerofactura } = data
 
-      // Crear la compra
+      // 1. Crear la compra con datos iniciales
       const compraId = await CompraModel.create({
         proveedor_id,
         fecha: new Date(),
         total: 0,
-        estado: estado || "Pendiente",
+        numerofactura,
       })
 
       let total = 0
 
-      // Crear los detalles de la compra
+      // 2. Procesar detalles y actualizar stock
       if (detalles && detalles.length > 0) {
         for (const detalle of detalles) {
           const { repuesto_id, cantidad, precio_compra, porcentaje_ganancia } = detalle
 
-          // Obtener el repuesto actual
           const repuesto = await RepuestoModel.findById(repuesto_id)
           if (!repuesto) {
             throw new Error(`Repuesto con ID ${repuesto_id} no encontrado`)
           }
 
-          // Usar el precio de compra proporcionado o el precio actual
-          const precioCompraFinal = precio_compra || repuesto.precio_compra || repuesto.precio_venta
-
-          // Calcular precio de venta con porcentaje de ganancia
-          const porcentaje = porcentaje_ganancia || 0
+          const precioCompraFinal = precio_compra !== undefined ? precio_compra : repuesto.precio_compra
+          const porcentaje = porcentaje_ganancia !== undefined ? porcentaje_ganancia : 0
           const precioVentaFinal = precioCompraFinal * (1 + porcentaje / 100)
-
           const subtotal = cantidad * precioCompraFinal
           total += subtotal
 
-          // Crear el detalle con ambos precios
+          // Crear el detalle de la compra
           await CompraPorRepuestoModel.create({
             compras_id: compraId,
             repuesto_id,
@@ -63,28 +58,26 @@ const CompraService = {
             subtotal,
           })
 
-          // Solo actualizar el stock y precios si el estado es "Completado"
-          if (estado === "Completado") {
-            const nuevaCantidad = repuesto.cantidad + cantidad
-            const nuevoTotal = nuevaCantidad * precioVentaFinal
+          // 3. Actualizar el stock y precios del repuesto INMEDIATAMENTE
+          const nuevaCantidad = repuesto.cantidad + cantidad
+          const nuevoTotalRepuesto = nuevaCantidad * precioVentaFinal
 
-            await RepuestoModel.update(repuesto_id, {
-              ...repuesto,
-              cantidad: nuevaCantidad,
-              precio_venta: precioVentaFinal,
-              precio_compra: precioCompraFinal,
-              total: nuevoTotal,
-            })
-          }
+          await RepuestoModel.update(repuesto_id, {
+            ...repuesto,
+            cantidad: nuevaCantidad,
+            precio_venta: precioVentaFinal,
+            precio_compra: precioCompraFinal,
+            total: nuevoTotalRepuesto,
+          })
         }
       }
 
-      // Actualizar el total de la compra
+      // 4. Actualizar el total final de la compra
       await CompraModel.update(compraId, {
         proveedor_id,
         fecha: new Date(),
         total,
-        estado: estado || "Pendiente",
+        numerofactura,
       })
 
       await connection.commit()
@@ -102,50 +95,40 @@ const CompraService = {
     await connection.beginTransaction()
 
     try {
-      const { proveedor_id, detalles, estado } = data
-
-      // Obtener la compra actual para verificar el estado
-      const compraActual = await CompraModel.findById(id)
+      const { proveedor_id, detalles, numerofactura } = data
       const detallesActuales = await CompraPorRepuestoModel.findByCompra(id)
 
-      // Si la compra estaba en estado "Completado", revertir el stock
-      if (compraActual.estado === "Completado") {
-        for (const detalle of detallesActuales) {
-          const repuesto = await RepuestoModel.findById(detalle.repuesto_id)
-          if (repuesto) {
-            const nuevaCantidad = Math.max(0, repuesto.cantidad - detalle.cantidad)
-            const nuevoTotal = nuevaCantidad * repuesto.precio_venta
-
-            await RepuestoModel.update(detalle.repuesto_id, {
-              ...repuesto,
-              cantidad: nuevaCantidad,
-              total: nuevoTotal,
-            })
-          }
+      // 1. Revertir el stock de la compra original
+      for (const detalle of detallesActuales) {
+        const repuesto = await RepuestoModel.findById(detalle.repuesto_id)
+        if (repuesto) {
+          const nuevaCantidad = Math.max(0, repuesto.cantidad - detalle.cantidad)
+          const nuevoTotal = nuevaCantidad * repuesto.precio_venta
+          await RepuestoModel.update(detalle.repuesto_id, {
+            ...repuesto,
+            cantidad: nuevaCantidad,
+            total: nuevoTotal,
+          })
         }
       }
 
-      // Eliminar los detalles actuales
+      // 2. Eliminar los detalles antiguos
       await CompraPorRepuestoModel.deleteByCompra(id)
 
       let total = 0
 
-      // Crear los nuevos detalles
+      // 3. Crear los nuevos detalles y actualizar stock
       if (detalles && detalles.length > 0) {
         for (const detalle of detalles) {
           const { repuesto_id, cantidad, precio_compra, porcentaje_ganancia } = detalle
-
           const repuesto = await RepuestoModel.findById(repuesto_id)
           if (!repuesto) {
             throw new Error(`Repuesto con ID ${repuesto_id} no encontrado`)
           }
 
-          const precioCompraFinal = precio_compra || repuesto.precio_compra || repuesto.precio_venta
-
-          // Calcular precio de venta con porcentaje de ganancia
-          const porcentaje = porcentaje_ganancia || 0
+          const precioCompraFinal = precio_compra !== undefined ? precio_compra : repuesto.precio_compra
+          const porcentaje = porcentaje_ganancia !== undefined ? porcentaje_ganancia : 0
           const precioVentaFinal = precioCompraFinal * (1 + porcentaje / 100)
-
           const subtotal = cantidad * precioCompraFinal
           total += subtotal
 
@@ -158,28 +141,26 @@ const CompraService = {
             subtotal,
           })
 
-          // Solo actualizar el stock y precios si el nuevo estado es "Completado"
-          if (estado === "Completado") {
-            const nuevaCantidad = repuesto.cantidad + cantidad
-            const nuevoTotal = nuevaCantidad * precioVentaFinal
-
-            await RepuestoModel.update(repuesto_id, {
-              ...repuesto,
-              cantidad: nuevaCantidad,
-              precio_venta: precioVentaFinal,
-              precio_compra: precioCompraFinal,
-              total: nuevoTotal,
-            })
-          }
+          // Actualizar stock con la nueva cantidad
+          const nuevaCantidadRepuesto = repuesto.cantidad + cantidad
+          const nuevoTotalRepuesto = nuevaCantidadRepuesto * precioVentaFinal
+          await RepuestoModel.update(repuesto_id, {
+            ...repuesto,
+            cantidad: nuevaCantidadRepuesto,
+            precio_venta: precioVentaFinal,
+            precio_compra: precioCompraFinal,
+            total: nuevoTotalRepuesto,
+          })
         }
       }
 
-      // Actualizar la compra
+      // 4. Actualizar la compra principal
+      const compraActual = await CompraModel.findById(id)
       await CompraModel.update(id, {
         proveedor_id,
         fecha: compraActual.fecha,
         total,
-        estado: estado || compraActual.estado,
+        numerofactura,
       })
 
       await connection.commit()
@@ -196,125 +177,29 @@ const CompraService = {
     await connection.beginTransaction()
 
     try {
-      // Obtener la compra para verificar el estado
-      const compra = await CompraModel.findById(id)
+      const detalles = await CompraPorRepuestoModel.findByCompra(id)
 
-      // Solo revertir el stock si la compra estaba en estado "Completado"
-      if (compra && compra.estado === "Completado") {
-        const detalles = await CompraPorRepuestoModel.findByCompra(id)
-
-        // Revertir el stock
-        for (const detalle of detalles) {
-          const repuesto = await RepuestoModel.findById(detalle.repuesto_id)
-          if (repuesto) {
-            const nuevaCantidad = Math.max(0, repuesto.cantidad - detalle.cantidad)
-            const nuevoTotal = nuevaCantidad * repuesto.precio_venta
-
-            await RepuestoModel.update(detalle.repuesto_id, {
-              ...repuesto,
-              cantidad: nuevaCantidad,
-              total: nuevoTotal,
-            })
-          }
+      // 1. Revertir el stock
+      for (const detalle of detalles) {
+        const repuesto = await RepuestoModel.findById(detalle.repuesto_id)
+        if (repuesto) {
+          const nuevaCantidad = Math.max(0, repuesto.cantidad - detalle.cantidad)
+          const nuevoTotal = nuevaCantidad * repuesto.precio_venta
+          await RepuestoModel.update(detalle.repuesto_id, {
+            ...repuesto,
+            cantidad: nuevaCantidad,
+            total: nuevoTotal,
+          })
         }
       }
 
-      // Eliminar los detalles
+      // 2. Eliminar detalles y luego la compra
       await CompraPorRepuestoModel.deleteByCompra(id)
-
-      // Eliminar la compra
       await CompraModel.delete(id)
 
       await connection.commit()
     } catch (error) {
       await connection.rollback()
-      throw error
-    } finally {
-      connection.release()
-    }
-  },
-
-  cambiarEstado: async (id) => {
-    const connection = await db.getConnection()
-    await connection.beginTransaction()
-
-    try {
-      const compra = await CompraModel.findById(id)
-      if (!compra) throw new Error("Compra no encontrada")
-
-      let nuevoEstado
-
-      // Lógica de cambio de estado más clara y específica
-      switch (compra.estado) {
-        case "Pendiente":
-          nuevoEstado = "Completado"
-          break
-        case "Completado":
-          nuevoEstado = "Cancelado"
-          break
-        case "Cancelado":
-          nuevoEstado = "Pendiente"
-          break
-        default:
-          nuevoEstado = "Pendiente"
-      }
-
-      console.log(`Cambiando estado de ${compra.estado} a ${nuevoEstado}`)
-
-      // Si cambia de Pendiente a Completado, actualizar el stock y precios
-      if (compra.estado === "Pendiente" && nuevoEstado === "Completado") {
-        const detalles = await CompraPorRepuestoModel.findByCompra(id)
-
-        for (const detalle of detalles) {
-          const repuesto = await RepuestoModel.findById(detalle.repuesto_id)
-          if (repuesto) {
-            const nuevaCantidad = repuesto.cantidad + detalle.cantidad
-            const precioCompra = detalle.precio_compra || repuesto.precio_compra
-            const precioVenta = detalle.precio_venta || repuesto.precio_venta
-            const nuevoTotal = nuevaCantidad * precioVenta
-
-            await RepuestoModel.update(detalle.repuesto_id, {
-              ...repuesto,
-              cantidad: nuevaCantidad,
-              precio_venta: precioVenta,
-              precio_compra: precioCompra,
-              total: nuevoTotal,
-            })
-          }
-        }
-      }
-
-      // Si cambia de Completado a Cancelado, revertir el stock pero mantener los precios
-      else if (compra.estado === "Completado" && nuevoEstado === "Cancelado") {
-        const detalles = await CompraPorRepuestoModel.findByCompra(id)
-
-        for (const detalle of detalles) {
-          const repuesto = await RepuestoModel.findById(detalle.repuesto_id)
-          if (repuesto) {
-            const nuevaCantidad = Math.max(0, repuesto.cantidad - detalle.cantidad)
-            const nuevoTotal = nuevaCantidad * repuesto.precio_venta
-
-            await RepuestoModel.update(detalle.repuesto_id, {
-              ...repuesto,
-              cantidad: nuevaCantidad,
-              total: nuevoTotal,
-              // Mantener precio_compra y precio_venta sin cambios
-            })
-          }
-        }
-      }
-
-      // Si cambia de Cancelado a Pendiente, no hacer nada con el stock
-      // Solo cambiar el estado
-
-      await CompraModel.cambiarEstado(id, nuevoEstado)
-      await connection.commit()
-
-      console.log(`Estado cambiado exitosamente a: ${nuevoEstado}`)
-      return nuevoEstado
-    } catch (error) {
-      await connection.rollback()
-      console.error("Error al cambiar estado:", error)
       throw error
     } finally {
       connection.release()

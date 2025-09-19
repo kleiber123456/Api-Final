@@ -26,33 +26,27 @@ const CompraModel = {
   },
 
   create: async (data) => {
-    const { fecha, proveedor_id, total, estado } = data
-    const [result] = await db.query("INSERT INTO compras (fecha, proveedor_id, total, estado) VALUES (?, ?, ?, ?)", [
-      fecha || new Date(),
-      proveedor_id,
-      total || 0,
-      estado || "Pendiente",
-    ])
+    const { fecha, proveedor_id, total, numerofactura } = data
+    const [result] = await db.query(
+      "INSERT INTO compras (fecha, proveedor_id, total, numerofactura) VALUES (?, ?, ?, ?)",
+      [fecha || new Date(), proveedor_id, total || 0, numerofactura],
+    )
     return result.insertId
   },
 
   update: async (id, data) => {
-    const { fecha, proveedor_id, total, estado } = data
-    await db.query("UPDATE compras SET fecha = ?, proveedor_id = ?, total = ?, estado = ? WHERE id = ?", [
+    const { fecha, proveedor_id, total, numerofactura } = data
+    await db.query("UPDATE compras SET fecha = ?, proveedor_id = ?, total = ?, numerofactura = ? WHERE id = ?", [
       fecha,
       proveedor_id,
       total,
-      estado,
+      numerofactura,
       id,
     ])
   },
 
   delete: async (id) => {
     await db.query("DELETE FROM compras WHERE id = ?", [id])
-  },
-
-  cambiarEstado: async (id, estado) => {
-    await db.query("UPDATE compras SET estado = ? WHERE id = ?", [estado, id])
   },
 }
 
